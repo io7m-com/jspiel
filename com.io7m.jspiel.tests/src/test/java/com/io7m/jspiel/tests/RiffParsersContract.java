@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+
 public abstract class RiffParsersContract
 {
   private static ByteBuffer copyToByteBuffer(
@@ -49,7 +52,11 @@ public abstract class RiffParsersContract
     final var data = copyToByteBuffer("000_12_be.wav");
     final var parsers = this.parsers();
     final var parser = parsers.createForByteBuffer(URI.create("000_12_be.wav"), data);
-    final var chunks = parser.parse();
+
+    final var file = parser.parse();
+    final var chunks = file.chunks();
+
+    Assertions.assertEquals(BIG_ENDIAN, file.byteOrder(), "Correct byte order");
 
     Assertions.assertEquals(1L, (long) chunks.size(), "Expected one chunk");
     final var chunk = chunks.get(0);
@@ -78,7 +85,11 @@ public abstract class RiffParsersContract
     final var data = copyToByteBuffer("000_12_le.wav");
     final var parsers = this.parsers();
     final var parser = parsers.createForByteBuffer(URI.create("000_12_le.wav"), data);
-    final var chunks = parser.parse();
+
+    final var file = parser.parse();
+    final var chunks = file.chunks();
+
+    Assertions.assertEquals(LITTLE_ENDIAN, file.byteOrder(), "Correct byte order");
 
     Assertions.assertEquals(1L, (long) chunks.size(), "Expected one chunk");
     final var chunk = chunks.get(0);

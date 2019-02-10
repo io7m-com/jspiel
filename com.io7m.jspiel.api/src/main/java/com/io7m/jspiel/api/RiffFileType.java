@@ -16,20 +16,24 @@
 
 package com.io7m.jspiel.api;
 
+import java.nio.ByteOrder;
+import java.util.List;
+
 /**
- * The type of parsers that can parse RIFF files.
+ * A parsed riff file.
  */
 
-public interface RiffFileParserType
+public interface RiffFileType
 {
   /**
-   * Parse as many chunks as possible.
-   *
-   * @return The list of parsed chunks
-   *
-   * @throws RiffParseException On parse errors
+   * @return The chunks contained within the file
    */
 
-  RiffFileType parse()
-    throws RiffParseException;
+  List<RiffChunkType> chunks();
+
+  /**
+   * @return The byte order of the underlying file
+   */
+
+  ByteOrder byteOrder();
 }

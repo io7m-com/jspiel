@@ -23,12 +23,14 @@ import com.io7m.jspiel.api.RiffChunkIDs;
 import com.io7m.jspiel.api.RiffChunkType;
 import com.io7m.jspiel.api.RiffFileParserProviderType;
 import com.io7m.jspiel.api.RiffFileParserType;
+import com.io7m.jspiel.api.RiffFileType;
 import com.io7m.jspiel.api.RiffParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,7 +86,7 @@ public final class RiffParsers implements RiffFileParserProviderType
     }
 
     @Override
-    public List<RiffChunkType> parse()
+    public RiffFileType parse()
       throws RiffParseException
     {
       final var offset = Integer.toUnsignedLong(this.data.position());
@@ -131,13 +133,38 @@ public final class RiffParsers implements RiffFileParserProviderType
       }
 
       this.data.position(Math.toIntExact(offset));
-      return new ChunkParser(
-        0,
-        Optional.empty(),
-        this.source,
-        this.data,
-        Integer.toUnsignedLong(limit))
-        .parse();
+
+      final var parse =
+        new ChunkParser(0, Optional.empty(), this.source, this.data, Integer.toUnsignedLong(limit))
+          .parse();
+
+      return new RiffFile(this.data.order(), parse);
+    }
+
+    private static final class RiffFile implements RiffFileType
+    {
+      private final ByteOrder order;
+      private final List<RiffChunkType> chunks;
+
+      RiffFile(
+        final ByteOrder in_order,
+        final List<RiffChunkType> in_chunks)
+      {
+        this.order = Objects.requireNonNull(in_order, "order");
+        this.chunks = Objects.requireNonNull(in_chunks, "chunks");
+      }
+
+      @Override
+      public List<RiffChunkType> chunks()
+      {
+        return this.chunks;
+      }
+
+      @Override
+      public ByteOrder byteOrder()
+      {
+        return this.order;
+      }
     }
   }
 
