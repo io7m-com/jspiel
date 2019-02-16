@@ -20,7 +20,8 @@
 
   <p>
     The <tt>jspiel</tt> package implements a set of types and functions for
-    manipulating RIFF files.
+    manipulating RIFF files. It provides efficient parsing and serialization
+    of RIFF files.
   </p>
 
 </div>
