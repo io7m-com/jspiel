@@ -24,6 +24,7 @@ import com.io7m.jspiel.api.RiffFileBuilderProviderType;
 import com.io7m.jspiel.api.RiffFileBuilderType;
 import com.io7m.jspiel.api.RiffFileWriterChunkDescriptionType;
 import com.io7m.jspiel.api.RiffFileWriterDescriptionType;
+import org.osgi.service.component.annotations.Component;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.stream.Stream;
  * A provider of file builders.
  */
 
+@Component
 public final class RiffFileBuilders implements RiffFileBuilderProviderType
 {
   /**

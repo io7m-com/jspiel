@@ -27,6 +27,7 @@
     <module>com.io7m.jspiel.tests</module>
     <module>com.io7m.jspiel.documentation</module>
     <module>com.io7m.jspiel.vanilla</module>
+    <module>com.io7m.jspiel.cmdline</module>
   </modules>
 
   <properties>
@@ -105,7 +106,22 @@
         <artifactId>org.osgi.annotation.bundle</artifactId>
         <version>1.0.0</version>
       </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.service.component.annotations</artifactId>
+        <version>1.4.0</version>
+      </dependency>
 
+      <dependency>
+        <groupId>com.io7m.junreachable</groupId>
+        <artifactId>com.io7m.junreachable.core</artifactId>
+        <version>2.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.72</version>
+      </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>

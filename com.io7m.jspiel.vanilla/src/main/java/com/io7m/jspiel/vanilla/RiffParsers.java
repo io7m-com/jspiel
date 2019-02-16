@@ -27,6 +27,7 @@ import com.io7m.jspiel.api.RiffFileType;
 import com.io7m.jspiel.api.RiffParseException;
 import com.io7m.jspiel.api.RiffSize;
 import com.io7m.jspiel.api.RiffSizes;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,7 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
  * RIFF parsers.
  */
 
+@Component
 public final class RiffParsers implements RiffFileParserProviderType
 {
   private static final Logger LOG = LoggerFactory.getLogger(RiffParsers.class);

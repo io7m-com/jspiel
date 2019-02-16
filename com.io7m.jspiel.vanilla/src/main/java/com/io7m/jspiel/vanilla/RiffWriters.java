@@ -27,6 +27,7 @@ import com.io7m.jspiel.api.RiffOutOfBoundsException;
 import com.io7m.jspiel.api.RiffSize;
 import com.io7m.jspiel.api.RiffSizes;
 import com.io7m.jspiel.api.RiffWriteException;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
  * The default implementation of the {@link RiffFileWriterProviderType} interface.
  */
 
+@Component
 public final class RiffWriters implements RiffFileWriterProviderType
 {
   private static final Logger LOG = LoggerFactory.getLogger(RiffWriters.class);

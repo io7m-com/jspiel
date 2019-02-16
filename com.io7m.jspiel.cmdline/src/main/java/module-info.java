@@ -15,24 +15,22 @@
  */
 
 /**
- * RIFF I/O (Vanilla implementation)
+ * RIFF I/O (Command-line tools)
  */
 
-module com.io7m.jspiel.vanilla
+module com.io7m.jspiel.cmdline
 {
-  requires static org.osgi.service.component.annotations;
-  requires static org.osgi.annotation.bundle;
-  requires transitive com.io7m.jspiel.api;
-
+  requires ch.qos.logback.classic;
+  requires com.io7m.jspiel.api;
+  requires com.io7m.junreachable.core;
+  requires jcommander;
   requires org.slf4j;
-  requires com.io7m.jaffirm.core;
 
-  exports com.io7m.jspiel.vanilla;
+  uses com.io7m.jspiel.api.RiffFileBuilderProviderType;
+  uses com.io7m.jspiel.api.RiffFileWriterProviderType;
+  uses com.io7m.jspiel.api.RiffFileParserProviderType;
 
-  provides com.io7m.jspiel.api.RiffFileParserProviderType
-    with com.io7m.jspiel.vanilla.RiffParsers;
-  provides com.io7m.jspiel.api.RiffFileWriterProviderType
-    with com.io7m.jspiel.vanilla.RiffWriters;
-  provides com.io7m.jspiel.api.RiffFileBuilderProviderType
-    with com.io7m.jspiel.vanilla.RiffFileBuilders;
+  opens com.io7m.jspiel.cmdline to jcommander;
+
+  exports com.io7m.jspiel.cmdline;
 }

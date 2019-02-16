@@ -14,25 +14,37 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.jspiel.cmdline;
+
+import com.beust.jcommander.IStringConverter;
+
+import java.util.Objects;
+
 /**
- * RIFF I/O (Vanilla implementation)
+ * A converter for {@link RIFFLogLevel} values.
  */
 
-module com.io7m.jspiel.vanilla
+public final class RIFFLogLevelConverter implements IStringConverter<RIFFLogLevel>
 {
-  requires static org.osgi.service.component.annotations;
-  requires static org.osgi.annotation.bundle;
-  requires transitive com.io7m.jspiel.api;
+  /**
+   * Construct a new converter.
+   */
 
-  requires org.slf4j;
-  requires com.io7m.jaffirm.core;
+  public RIFFLogLevelConverter()
+  {
 
-  exports com.io7m.jspiel.vanilla;
+  }
 
-  provides com.io7m.jspiel.api.RiffFileParserProviderType
-    with com.io7m.jspiel.vanilla.RiffParsers;
-  provides com.io7m.jspiel.api.RiffFileWriterProviderType
-    with com.io7m.jspiel.vanilla.RiffWriters;
-  provides com.io7m.jspiel.api.RiffFileBuilderProviderType
-    with com.io7m.jspiel.vanilla.RiffFileBuilders;
+  @Override
+  public RIFFLogLevel convert(final String value)
+  {
+    for (final var v : RIFFLogLevel.values()) {
+      if (Objects.equals(value, v.getName())) {
+        return v;
+      }
+    }
+
+    throw new RIFFLogLevelUnrecognized(
+      "Unrecognized verbosity level: " + value);
+  }
 }

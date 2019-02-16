@@ -14,25 +14,16 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.jspiel.cmdline;
+
+import java.util.concurrent.Callable;
+
 /**
- * RIFF I/O (Vanilla implementation)
+ * The type of command-line subcommands.
  */
 
-module com.io7m.jspiel.vanilla
+public interface CommandType extends Callable<Void>
 {
-  requires static org.osgi.service.component.annotations;
-  requires static org.osgi.annotation.bundle;
-  requires transitive com.io7m.jspiel.api;
-
-  requires org.slf4j;
-  requires com.io7m.jaffirm.core;
-
-  exports com.io7m.jspiel.vanilla;
-
-  provides com.io7m.jspiel.api.RiffFileParserProviderType
-    with com.io7m.jspiel.vanilla.RiffParsers;
-  provides com.io7m.jspiel.api.RiffFileWriterProviderType
-    with com.io7m.jspiel.vanilla.RiffWriters;
-  provides com.io7m.jspiel.api.RiffFileBuilderProviderType
-    with com.io7m.jspiel.vanilla.RiffFileBuilders;
+  // No extra methods
 }
