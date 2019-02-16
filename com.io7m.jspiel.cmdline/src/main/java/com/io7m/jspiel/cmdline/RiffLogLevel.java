@@ -25,7 +25,7 @@ import java.util.Objects;
  * Log level.
  */
 
-public enum RIFFLogLevel
+public enum RiffLogLevel
 {
   /**
    * @see Level#TRACE
@@ -60,7 +60,7 @@ public enum RIFFLogLevel
 
   private final String name;
 
-  RIFFLogLevel(final String in_name)
+  RiffLogLevel(final String in_name)
   {
     this.name = Objects.requireNonNull(in_name);
   }

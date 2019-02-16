@@ -16,9 +16,9 @@
 
 package com.io7m.jspiel.cmdline;
 
-final class RIFFLogLevelUnrecognized extends RuntimeException
+final class RiffLogLevelUnrecognized extends RuntimeException
 {
-  RIFFLogLevelUnrecognized(final String message)
+  RiffLogLevelUnrecognized(final String message)
   {
     super(message);
   }

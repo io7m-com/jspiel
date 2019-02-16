@@ -21,30 +21,30 @@ import com.beust.jcommander.IStringConverter;
 import java.util.Objects;
 
 /**
- * A converter for {@link RIFFLogLevel} values.
+ * A converter for {@link RiffLogLevel} values.
  */
 
-public final class RIFFLogLevelConverter implements IStringConverter<RIFFLogLevel>
+public final class RiffLogLevelConverter implements IStringConverter<RiffLogLevel>
 {
   /**
    * Construct a new converter.
    */
 
-  public RIFFLogLevelConverter()
+  public RiffLogLevelConverter()
   {
 
   }
 
   @Override
-  public RIFFLogLevel convert(final String value)
+  public RiffLogLevel convert(final String value)
   {
-    for (final var v : RIFFLogLevel.values()) {
+    for (final var v : RiffLogLevel.values()) {
       if (Objects.equals(value, v.getName())) {
         return v;
       }
     }
 
-    throw new RIFFLogLevelUnrecognized(
+    throw new RiffLogLevelUnrecognized(
       "Unrecognized verbosity level: " + value);
   }
 }

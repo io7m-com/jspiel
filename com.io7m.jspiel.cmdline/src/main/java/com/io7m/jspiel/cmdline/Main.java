@@ -38,7 +38,13 @@ public final class Main implements Runnable
   private final String[] args;
   private int exit_code;
 
-  private Main(final String[] in_args)
+  /**
+   * Construct a new main program.
+   *
+   * @param in_args Command-line arguments
+   */
+
+  public Main(final String[] in_args)
   {
     this.args = Objects.requireNonNull(in_args, "args");
 
