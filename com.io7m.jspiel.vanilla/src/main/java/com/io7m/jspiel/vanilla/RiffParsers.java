@@ -422,9 +422,7 @@ public final class RiffParsers implements RiffFileParserProviderType
             break;
         }
 
-        final var element_size = 4L + 4L + size.size();
-        final var seek_size = element_size;
-
+        final var seek_size = 4L + 4L + size.size();
         if (LOG.isTraceEnabled()) {
           LOG.trace(
             "[{}]: remaining: {} - {} = {}",

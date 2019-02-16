@@ -397,59 +397,5 @@ public final class RiffWriters implements RiffFileWriterProviderType
       }
       return RelativeSeekableByteChannel.create(this.root_channel, lower, false);
     }
-
-    private static final class SizeSpec
-    {
-      private final long size;
-      private final boolean padded;
-
-      SizeSpec(
-        final long in_size,
-        final boolean in_padded)
-      {
-        this.size = in_size;
-        this.padded = in_padded;
-
-        Preconditions.checkPreconditionL(
-          this.size,
-          this.size % 2L == 0L, x -> "Size must be even");
-      }
-
-      static SizeSpec padIfNecessary(
-        final long input)
-      {
-        if (input % 2L == 0L) {
-          return new SizeSpec(input, false);
-        }
-        return new SizeSpec(Math.addExact(input, 1L), true);
-      }
-
-      @Override
-      public String toString()
-      {
-        final var sb = new StringBuilder(32);
-        sb.append("[Size ")
-          .append(this.size);
-
-        if (this.padded) {
-          sb.append(" (unpadded size: ");
-          sb.append(this.unpaddedSize());
-          sb.append(")");
-        }
-
-        sb.append(']');
-        return sb.toString();
-      }
-
-      long size()
-      {
-        return this.padded ? this.size : this.size;
-      }
-
-      long unpaddedSize()
-      {
-        return this.padded ? Math.subtractExact(this.size, 1L) : this.size;
-      }
-    }
   }
 }
