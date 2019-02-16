@@ -16,36 +16,26 @@
 
 package com.io7m.jspiel.api;
 
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.stream.Stream;
+import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
 
 /**
- * A parsed riff file.
+ * A data writer for a chunk.
  */
 
-public interface RiffFileType
+public interface RiffChunkDataWriterType
 {
   /**
-   * @return The chunks contained within the file
+   * Called when a client is expected to write data to the given channel. The given channel is
+   * configured such that the start of the chunk is at position {@code 0}. If the client declared
+   * that the chunk must be a certain size, then attempting to write more data than the declared
+   * size will cause the channel to raise an exception.
+   *
+   * @param data The writable channel
+   *
+   * @throws IOException On I/O errors
    */
 
-  List<RiffChunkType> chunks();
-
-  /**
-   * @return The byte order of the underlying file
-   */
-
-  ByteOrder byteOrder();
-
-  /**
-   * @return The list of chunks in (depth-first) order
-   */
-
-  default Stream<RiffChunkType> linearizedChunks()
-  {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
-  }
+  void write(SeekableByteChannel data)
+    throws IOException;
 }

@@ -24,5 +24,7 @@ module com.io7m.jspiel.api
   requires static com.io7m.immutables.style;
   requires static org.osgi.annotation.bundle;
 
+  requires transitive com.io7m.jaffirm.core;
+
   exports com.io7m.jspiel.api;
 }

@@ -71,11 +71,11 @@ public final class RiffChunks
           "CHUNK %s (%s) (size %d)\n",
           chunk.name().value(),
           formType,
-          Long.valueOf(chunk.dataSize())),
+          Long.valueOf(chunk.dataSizeIncludingForm().sizeUnpadded())),
         () -> System.out.printf(
           "CHUNK %s (size %d)\n",
           chunk.name().value(),
-          Long.valueOf(chunk.dataSize())));
+          Long.valueOf(chunk.dataSizeIncludingForm().sizeUnpadded())));
 
     for (final var subChunk : chunk.subChunks()) {
       showChunk(subChunk, depth + 1);

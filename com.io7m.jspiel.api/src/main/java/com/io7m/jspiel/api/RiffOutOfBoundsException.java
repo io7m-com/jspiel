@@ -16,36 +16,47 @@
 
 package com.io7m.jspiel.api;
 
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.stream.Stream;
-
 /**
- * A parsed riff file.
+ * An exception raised when attempting an out-of-bounds read or write.
  */
 
-public interface RiffFileType
+public final class RiffOutOfBoundsException extends RiffUncheckedException
 {
   /**
-   * @return The chunks contained within the file
+   * Construct an exception.
+   *
+   * @param message The message
    */
 
-  List<RiffChunkType> chunks();
-
-  /**
-   * @return The byte order of the underlying file
-   */
-
-  ByteOrder byteOrder();
-
-  /**
-   * @return The list of chunks in (depth-first) order
-   */
-
-  default Stream<RiffChunkType> linearizedChunks()
+  public RiffOutOfBoundsException(
+    final String message)
   {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
+    super(message);
+  }
+
+  /**
+   * Construct an exception.
+   *
+   * @param message The message
+   * @param cause   The underlying cause
+   */
+
+  public RiffOutOfBoundsException(
+    final String message,
+    final Throwable cause)
+  {
+    super(message, cause);
+  }
+
+  /**
+   * Construct an exception.
+   *
+   * @param cause The underlying cause
+   */
+
+  public RiffOutOfBoundsException(
+    final Throwable cause)
+  {
+    super(cause);
   }
 }

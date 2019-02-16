@@ -18,6 +18,7 @@ package com.io7m.jspiel.api;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * A parsed RIFF chunk. Values of this type are effectively immutable.
@@ -44,18 +45,19 @@ public interface RiffChunkType
   long offset();
 
   /**
-   * @return The size in octets of the data in this chunk
+   * @return The size in octets of the data in this chunk, including any form field (if present)
    */
 
-  long dataSize();
+  RiffSize dataSizeIncludingForm();
 
   /**
-   * @return The total size of this chunk, including the data, chunk ID, and chunk size field
+   * @return The total size of this chunk, including the data (and padding), chunk ID, and chunk
+   * size field
    */
 
   default long totalSize()
   {
-    return this.dataSize() + 8L;
+    return Math.addExact(this.dataSizeIncludingForm().size(), 8L);
   }
 
   /**
@@ -77,6 +79,30 @@ public interface RiffChunkType
 
   default long dataOffset()
   {
-    return this.offset() + 8L;
+    return Math.addExact(this.offset(), 8L);
+  }
+
+  /**
+   * @return The linearized subchunks, including all descendants, in depth-first order
+   */
+
+  default Stream<RiffChunkType> linearizedSubChunks()
+  {
+    return Stream.concat(
+      Stream.of(this),
+      this.subChunks().stream().flatMap(RiffChunkType::linearizedSubChunks));
+  }
+
+  /**
+   * @return The size in octets of the data in this chunk, excluding any form field (if present)
+   */
+
+  default RiffSize dataSizeExcludingForm()
+  {
+    return this.formType()
+      .map(ignored -> {
+      final var size = this.dataSizeIncludingForm();
+      return size.withSize(Math.subtractExact(size.size(), 4L));
+    }).orElse(this.dataSizeIncludingForm());
   }
 }

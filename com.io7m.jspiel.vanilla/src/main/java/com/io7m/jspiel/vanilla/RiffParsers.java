@@ -25,6 +25,8 @@ import com.io7m.jspiel.api.RiffFileParserProviderType;
 import com.io7m.jspiel.api.RiffFileParserType;
 import com.io7m.jspiel.api.RiffFileType;
 import com.io7m.jspiel.api.RiffParseException;
+import com.io7m.jspiel.api.RiffSize;
+import com.io7m.jspiel.api.RiffSizes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +50,8 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public final class RiffParsers implements RiffFileParserProviderType
 {
+  private static final Logger LOG = LoggerFactory.getLogger(RiffParsers.class);
+
   private static final String FOURCC_RIFF = "RIFF";
   private static final String FOURCC_FFIR = "FFIR";
   private static final String FOURCC_RIFX = "RIFX";
@@ -173,7 +177,7 @@ public final class RiffParsers implements RiffFileParserProviderType
     private final Optional<String> form_type;
     private final Optional<RiffChunkType> parent;
     private RiffChunkID name;
-    private long size;
+    private RiffSize size;
     private List<RiffChunkType> sub_chunks;
     private long offset;
 
@@ -181,7 +185,7 @@ public final class RiffParsers implements RiffFileParserProviderType
       final Optional<RiffChunkType> in_parent,
       final long in_offset,
       final RiffChunkID in_name,
-      final long in_size,
+      final RiffSize in_size,
       final Optional<String> in_form_type,
       final List<RiffChunkType> in_sub_chunks)
     {
@@ -189,14 +193,42 @@ public final class RiffParsers implements RiffFileParserProviderType
         Objects.requireNonNull(in_parent, "parent");
       this.name =
         Objects.requireNonNull(in_name, "name");
+      this.size =
+        Objects.requireNonNull(in_size, "size");
       this.offset =
         in_offset;
-      this.size =
-        in_size;
       this.form_type =
         Objects.requireNonNull(in_form_type, "form_type");
       this.sub_chunks =
         Collections.unmodifiableList(Objects.requireNonNull(in_sub_chunks, "sub_chunks"));
+    }
+
+    @Override
+    public String toString()
+    {
+      final var sb = new StringBuilder(128);
+
+      sb.append("[RiffChunk ")
+        .append(this.name.value());
+
+      this.form_type.ifPresent(
+        form_name -> sb.append("(")
+          .append(form_name)
+          .append(")"));
+
+      sb.append(" offset 0x")
+        .append(Long.toUnsignedString(this.offset, 16))
+        .append(" size ")
+        .append(this.size);
+
+      if (!this.sub_chunks.isEmpty()) {
+        sb.append(' ')
+          .append(this.sub_chunks.size())
+          .append(" subchunks");
+      }
+
+      sb.append(']');
+      return sb.toString();
     }
 
     @Override
@@ -218,7 +250,7 @@ public final class RiffParsers implements RiffFileParserProviderType
     }
 
     @Override
-    public long dataSize()
+    public RiffSize dataSizeIncludingForm()
     {
       return this.size;
     }
@@ -238,8 +270,6 @@ public final class RiffParsers implements RiffFileParserProviderType
 
   private static final class ChunkParser
   {
-    private static final Logger LOG = LoggerFactory.getLogger(ChunkParser.class);
-
     private final ByteBuffer data;
     private final long limit;
     private final URI uri;
@@ -311,11 +341,11 @@ public final class RiffParsers implements RiffFileParserProviderType
                 Long.toUnsignedString(offset, 16),
                 name.value(),
                 form_type,
-                Long.valueOf(size),
+                size,
                 Long.valueOf(chunk.totalSize()));
             }
 
-            final var expected_sub_chunks_size = size - 4L;
+            final var expected_sub_chunks_size = size.size() - 4L;
             final var parser =
               new ChunkParser(
                 this.depth + 1,
@@ -348,11 +378,11 @@ public final class RiffParsers implements RiffFileParserProviderType
                 Long.toUnsignedString(offset, 16),
                 name.value(),
                 form_type,
-                Long.valueOf(size),
+                size,
                 Long.valueOf(chunk.totalSize()));
             }
 
-            final var expected_sub_chunks_size = size - 4L;
+            final var expected_sub_chunks_size = size.size() - 4L;
             final var parser =
               new ChunkParser(
                 this.depth + 1,
@@ -382,7 +412,7 @@ public final class RiffParsers implements RiffFileParserProviderType
                 Integer.valueOf(this.depth),
                 Long.toUnsignedString(offset, 16),
                 name.value(),
-                Long.valueOf(size),
+                size,
                 Long.valueOf(chunk.totalSize()));
             }
 
@@ -390,13 +420,8 @@ public final class RiffParsers implements RiffFileParserProviderType
             break;
         }
 
-        final long seek_size;
-        final var element_size = 4L + 4L + size;
-        if (size % 2L == 0L) {
-          seek_size = element_size;
-        } else {
-          seek_size = element_size + 1L;
-        }
+        final var element_size = 4L + 4L + size.size();
+        final var seek_size = element_size;
 
         if (LOG.isTraceEnabled()) {
           LOG.trace(
@@ -438,12 +463,12 @@ public final class RiffParsers implements RiffFileParserProviderType
       return form_type;
     }
 
-    private long readChunkSize(
+    private RiffSize readChunkSize(
       final long position_start)
     {
       final var size = Integer.toUnsignedLong(this.data.getInt());
       this.checkBounds(position_start);
-      return size;
+      return RiffSizes.padIfNecessary(size);
     }
 
     private RiffChunkID readChunkName(

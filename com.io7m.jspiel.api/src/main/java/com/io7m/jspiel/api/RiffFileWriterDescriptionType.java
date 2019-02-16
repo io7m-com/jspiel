@@ -17,35 +17,29 @@
 package com.io7m.jspiel.api;
 
 import java.nio.ByteOrder;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * A parsed riff file.
+ * A description of a RIFF file to be built.
  */
 
-public interface RiffFileType
+public interface RiffFileWriterDescriptionType
 {
   /**
-   * @return The chunks contained within the file
-   */
-
-  List<RiffChunkType> chunks();
-
-  /**
-   * @return The byte order of the underlying file
+   * @return The byte order of the file to be created
    */
 
   ByteOrder byteOrder();
 
   /**
-   * @return The list of chunks in (depth-first) order
+   * @return The root chunk of the file to be created
    */
 
-  default Stream<RiffChunkType> linearizedChunks()
-  {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
-  }
+  RiffFileWriterChunkDescriptionType rootChunk();
+
+  /**
+   * @return A stream of chunks in linear order
+   */
+
+  Stream<RiffFileWriterChunkDescriptionType> linearizedChunks();
 }

@@ -14,38 +14,24 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package com.io7m.jspiel.api;
+package com.io7m.jspiel.tests;
 
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.stream.Stream;
+import com.io7m.jspiel.api.RiffFileBuilderProviderType;
+import com.io7m.jspiel.vanilla.RiffFileBuilders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * A parsed riff file.
- */
-
-public interface RiffFileType
+public final class RiffFileBuildersVanillaTest extends RiffFileBuildersContract
 {
-  /**
-   * @return The chunks contained within the file
-   */
-
-  List<RiffChunkType> chunks();
-
-  /**
-   * @return The byte order of the underlying file
-   */
-
-  ByteOrder byteOrder();
-
-  /**
-   * @return The list of chunks in (depth-first) order
-   */
-
-  default Stream<RiffChunkType> linearizedChunks()
+  @Override
+  protected Logger logger()
   {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
+    return LoggerFactory.getLogger(RiffFileBuildersVanillaTest.class);
+  }
+
+  @Override
+  protected RiffFileBuilderProviderType builders()
+  {
+    return new RiffFileBuilders();
   }
 }

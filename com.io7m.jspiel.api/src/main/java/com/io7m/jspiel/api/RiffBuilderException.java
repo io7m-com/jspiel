@@ -16,36 +16,49 @@
 
 package com.io7m.jspiel.api;
 
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.stream.Stream;
-
 /**
- * A parsed riff file.
+ * The type of exceptions thrown by the API.
  */
 
-public interface RiffFileType
+public final class RiffBuilderException extends RiffException
 {
-  /**
-   * @return The chunks contained within the file
-   */
-
-  List<RiffChunkType> chunks();
+  private static final long serialVersionUID = -5855486650649301744L;
 
   /**
-   * @return The byte order of the underlying file
+   * Construct an exception.
+   *
+   * @param message The message
    */
 
-  ByteOrder byteOrder();
-
-  /**
-   * @return The list of chunks in (depth-first) order
-   */
-
-  default Stream<RiffChunkType> linearizedChunks()
+  public RiffBuilderException(
+    final String message)
   {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
+    super(message);
+  }
+
+  /**
+   * Construct an exception.
+   *
+   * @param message The message
+   * @param cause   The underlying cause
+   */
+
+  public RiffBuilderException(
+    final String message,
+    final Throwable cause)
+  {
+    super(message, cause);
+  }
+
+  /**
+   * Construct an exception.
+   *
+   * @param cause The underlying cause
+   */
+
+  public RiffBuilderException(
+    final Throwable cause)
+  {
+    super(cause);
   }
 }

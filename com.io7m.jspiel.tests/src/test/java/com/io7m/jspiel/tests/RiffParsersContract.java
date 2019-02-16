@@ -62,20 +62,24 @@ public abstract class RiffParsersContract
     final var chunk = chunks.get(0);
     Assertions.assertEquals("RIFX", chunk.name().value(), "Chunk name matches");
     Assertions.assertEquals("WAVE", chunk.formType().get(), "Form type matches");
-    Assertions.assertEquals(192050L, chunk.dataSize(), "Size matches");
+    Assertions.assertEquals(192050L, chunk.dataSizeIncludingForm().size(), "Size matches");
+    Assertions.assertEquals(192046L, chunk.dataSizeExcludingForm().size(), "Size matches");
     Assertions.assertEquals(3L, (long) chunk.subChunks().size(), "Expected 3 subchunks");
 
     final var sc0 = chunk.subChunks().get(0);
     Assertions.assertEquals("fmt ", sc0.name().value(), "Chunk name matches");
-    Assertions.assertEquals(18L, sc0.dataSize(), "Size matches");
+    Assertions.assertEquals(18L, sc0.dataSizeIncludingForm().size(), "Size matches");
+    Assertions.assertEquals(18L, sc0.dataSizeExcludingForm().size(), "Size matches");
 
     final var sc1 = chunk.subChunks().get(1);
     Assertions.assertEquals("fact", sc1.name().value(), "Chunk name matches");
-    Assertions.assertEquals(4L, sc1.dataSize(), "Size matches");
+    Assertions.assertEquals(4L, sc1.dataSizeIncludingForm().size(), "Size matches");
+    Assertions.assertEquals(4L, sc1.dataSizeExcludingForm().size(), "Size matches");
 
     final var sc2 = chunk.subChunks().get(2);
     Assertions.assertEquals("data", sc2.name().value(), "Chunk name matches");
-    Assertions.assertEquals(192000L, sc2.dataSize(), "Size matches");
+    Assertions.assertEquals(192000L, sc2.dataSizeIncludingForm().size(), "Size matches");
+    Assertions.assertEquals(192000L, sc2.dataSizeExcludingForm().size(), "Size matches");
   }
 
   @Test
@@ -95,15 +99,18 @@ public abstract class RiffParsersContract
     final var chunk = chunks.get(0);
     Assertions.assertEquals("RIFF", chunk.name().value(), "Chunk name matches");
     Assertions.assertEquals("WAVE", chunk.formType().get(), "Form type matches");
-    Assertions.assertEquals(192036L, chunk.dataSize(), "Size matches");
+    Assertions.assertEquals(192036L, chunk.dataSizeIncludingForm().size(), "Size matches");
+    Assertions.assertEquals(192032L, chunk.dataSizeExcludingForm().size(), "Size matches");
     Assertions.assertEquals(2L, (long) chunk.subChunks().size(), "Expected 3 subchunks");
 
     final var sc0 = chunk.subChunks().get(0);
     Assertions.assertEquals("fmt ", sc0.name().value(), "Chunk name matches");
-    Assertions.assertEquals(16L, sc0.dataSize(), "Size matches");
+    Assertions.assertEquals(16L, sc0.dataSizeIncludingForm().size(), "Size matches");
+    Assertions.assertEquals(16L, sc0.dataSizeExcludingForm().size(), "Size matches");
 
     final var sc1 = chunk.subChunks().get(1);
     Assertions.assertEquals("data", sc1.name().value(), "Chunk name matches");
-    Assertions.assertEquals(192000L, sc1.dataSize(), "Size matches");
+    Assertions.assertEquals(192000L, sc1.dataSizeIncludingForm().size(), "Size matches");
+    Assertions.assertEquals(192000L, sc1.dataSizeExcludingForm().size(), "Size matches");
   }
 }

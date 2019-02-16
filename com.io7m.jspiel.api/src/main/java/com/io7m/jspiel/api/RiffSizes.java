@@ -16,36 +16,32 @@
 
 package com.io7m.jspiel.api;
 
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.stream.Stream;
-
 /**
- * A parsed riff file.
+ * Functions to manipulate sizes.
  */
 
-public interface RiffFileType
+public final class RiffSizes
 {
-  /**
-   * @return The chunks contained within the file
-   */
-
-  List<RiffChunkType> chunks();
-
-  /**
-   * @return The byte order of the underlying file
-   */
-
-  ByteOrder byteOrder();
-
-  /**
-   * @return The list of chunks in (depth-first) order
-   */
-
-  default Stream<RiffChunkType> linearizedChunks()
+  private RiffSizes()
   {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
+
+  }
+
+  /**
+   * Create a size from the given value.
+   *
+   * @param input The input
+   *
+   * @return A size
+   */
+
+  public static RiffSize padIfNecessary(
+    final long input)
+  {
+    if (input % 2L == 0L) {
+      return RiffSize.of(input, false);
+    }
+
+    return RiffSize.of(Math.addExact(input, 1L), true);
   }
 }

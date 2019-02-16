@@ -16,36 +16,50 @@
 
 package com.io7m.jspiel.api;
 
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.stream.Stream;
+import com.io7m.immutables.styles.ImmutablesStyleType;
+import com.io7m.jaffirm.core.Preconditions;
+import org.immutables.value.Value;
 
 /**
- * A parsed riff file.
+ * A (possibly padded) size value.
  */
 
-public interface RiffFileType
+@ImmutablesStyleType
+@Value.Immutable
+public interface RiffSizeType
 {
   /**
-   * @return The chunks contained within the file
+   * @return The raw size value
    */
 
-  List<RiffChunkType> chunks();
+  @Value.Parameter
+  long size();
 
   /**
-   * @return The byte order of the underlying file
+   * @return {@code true} if the size value has an extra padding byte
    */
 
-  ByteOrder byteOrder();
+  @Value.Parameter
+  boolean isPadded();
 
   /**
-   * @return The list of chunks in (depth-first) order
+   * @return The size without any padding (if any exists)
    */
 
-  default Stream<RiffChunkType> linearizedChunks()
+  default long sizeUnpadded()
   {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
+    return this.isPadded() ? Math.subtractExact(this.size(), 1L) : this.size();
+  }
+
+  /**
+   * Check preconditions for the type.
+   */
+
+  @Value.Check
+  default void checkPreconditions()
+  {
+    Preconditions.checkPreconditionL(
+      this.size(),
+      this.size() % 2L == 0L, x -> "Size must be even");
   }
 }

@@ -16,36 +16,30 @@
 
 package com.io7m.jspiel.api;
 
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.stream.Stream;
+import java.net.URI;
+import java.nio.channels.SeekableByteChannel;
 
 /**
- * A parsed riff file.
+ * The type of writer providers.
  */
 
-public interface RiffFileType
+public interface RiffFileWriterProviderType
 {
   /**
-   * @return The chunks contained within the file
+   * Create a writer for the given byte channel.
+   *
+   * @param source      The URI of the target
+   * @param description The description of the target file
+   * @param channel     The output channel
+   *
+   * @return A new writer
+   *
+   * @throws RiffWriteException On errors
    */
 
-  List<RiffChunkType> chunks();
-
-  /**
-   * @return The byte order of the underlying file
-   */
-
-  ByteOrder byteOrder();
-
-  /**
-   * @return The list of chunks in (depth-first) order
-   */
-
-  default Stream<RiffChunkType> linearizedChunks()
-  {
-    return this.chunks()
-      .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
-  }
+  RiffFileWriterType createForChannel(
+    URI source,
+    RiffFileWriterDescriptionType description,
+    SeekableByteChannel channel)
+    throws RiffWriteException;
 }

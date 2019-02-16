@@ -22,5 +22,12 @@ package com.io7m.jspiel.api;
 
 public interface RiffFileWriterType
 {
+  /**
+   * Write all data to the output file.
+   *
+   * @throws RiffWriteException On writer errors
+   */
 
+  void write()
+    throws RiffWriteException;
 }
