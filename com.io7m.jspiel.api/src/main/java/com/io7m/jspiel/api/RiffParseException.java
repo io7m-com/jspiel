@@ -30,6 +30,24 @@ public final class RiffParseException extends RiffException
   private final long offset;
 
   /**
+   * @return The source URI
+   */
+
+  public URI source()
+  {
+    return this.source;
+  }
+
+  /**
+   * @return The offset in octets within the input that caused the error
+   */
+
+  public long offset()
+  {
+    return this.offset;
+  }
+
+  /**
    * Construct an exception.
    *
    * @param message   The message
