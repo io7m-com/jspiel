@@ -16,7 +16,7 @@
 
 package com.io7m.jspiel.tests;
 
-import com.io7m.jspiel.vanilla.RelativeSeekableByteChannel;
+import com.io7m.jspiel.vanilla.RiffRelativeSeekableByteChannel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ import java.nio.file.Files;
 import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-public final class RelativeSeekableByteChannelTest
+public final class RiffRelativeSeekableByteChannelTest
 {
   @Test
   public void testPositionAnywhereOK()
@@ -36,7 +36,7 @@ public final class RelativeSeekableByteChannelTest
     final var path = Files.createTempFile("relative-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE)) {
-      try (var channel = RelativeSeekableByteChannel.create(base, 0L, false)) {
+      try (var channel = RiffRelativeSeekableByteChannel.create(base, 0L, false)) {
         channel.position(1_0L);
         channel.position(1_00L);
         channel.position(1_000L);
@@ -51,7 +51,7 @@ public final class RelativeSeekableByteChannelTest
     final var path = Files.createTempFile("relative-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE, READ)) {
-      try (var channel = RelativeSeekableByteChannel.create(base, 10L, false)) {
+      try (var channel = RiffRelativeSeekableByteChannel.create(base, 10L, false)) {
         channel.position(0L);
         channel.write(ByteBuffer.wrap(new byte[]{(byte) 0xff}));
 
@@ -73,7 +73,7 @@ public final class RelativeSeekableByteChannelTest
     final var path = Files.createTempFile("relative-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE, READ)) {
-      try (var channel = RelativeSeekableByteChannel.create(base, 10L, false)) {
+      try (var channel = RiffRelativeSeekableByteChannel.create(base, 10L, false)) {
         base.position(10L);
         base.write(ByteBuffer.wrap(new byte[]{(byte) 0xff}));
 

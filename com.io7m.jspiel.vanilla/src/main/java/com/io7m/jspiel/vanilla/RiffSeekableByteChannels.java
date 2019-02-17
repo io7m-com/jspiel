@@ -14,27 +14,37 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+package com.io7m.jspiel.vanilla;
+
+import com.io7m.jspiel.api.RiffSeekableByteChannelsType;
+import org.osgi.service.component.annotations.Component;
+
+import java.nio.channels.SeekableByteChannel;
+import java.util.Objects;
+
 /**
- * RIFF I/O (Vanilla implementation)
+ * The default provider of seekable byte channels.
  */
 
-module com.io7m.jspiel.vanilla
+@Component
+public final class RiffSeekableByteChannels implements RiffSeekableByteChannelsType
 {
-  requires static org.osgi.service.component.annotations;
-  requires static org.osgi.annotation.bundle;
-  requires transitive com.io7m.jspiel.api;
+  /**
+   * Construct a provider.
+   */
 
-  requires org.slf4j;
-  requires com.io7m.jaffirm.core;
+  public RiffSeekableByteChannels()
+  {
 
-  exports com.io7m.jspiel.vanilla;
+  }
 
-  provides com.io7m.jspiel.api.RiffFileParserProviderType
-    with com.io7m.jspiel.vanilla.RiffParsers;
-  provides com.io7m.jspiel.api.RiffFileWriterProviderType
-    with com.io7m.jspiel.vanilla.RiffWriters;
-  provides com.io7m.jspiel.api.RiffFileBuilderProviderType
-    with com.io7m.jspiel.vanilla.RiffFileBuilders;
-  provides com.io7m.jspiel.api.RiffSeekableByteChannelsType
-    with com.io7m.jspiel.vanilla.RiffSeekableByteChannels;
+  @Override
+  public SeekableByteChannel createFromChannel(
+    final SeekableByteChannel channel,
+    final long lower,
+    final long upper)
+  {
+    Objects.requireNonNull(channel, "channel");
+    return RiffRestrictedSeekableByteChannel.create(channel, lower, upper, false);
+  }
 }

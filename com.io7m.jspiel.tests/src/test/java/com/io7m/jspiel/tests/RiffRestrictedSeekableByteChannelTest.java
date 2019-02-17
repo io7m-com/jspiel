@@ -17,7 +17,7 @@
 package com.io7m.jspiel.tests;
 
 import com.io7m.jspiel.api.RiffOutOfBoundsException;
-import com.io7m.jspiel.vanilla.RestrictedSeekableByteChannel;
+import com.io7m.jspiel.vanilla.RiffRestrictedSeekableByteChannel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ import java.nio.file.Files;
 import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-public final class RestrictedSeekableByteChannelTest
+public final class RiffRestrictedSeekableByteChannelTest
 {
   @Test
   public void testEmpty()
@@ -38,7 +38,7 @@ public final class RestrictedSeekableByteChannelTest
 
     try (var base = FileChannel.open(path, WRITE)) {
       Assertions.assertThrows(IllegalArgumentException.class, () -> {
-        RestrictedSeekableByteChannel.create(base, 0L, 0L, false);
+        RiffRestrictedSeekableByteChannel.create(base, 0L, 0L, false);
       });
     }
   }
@@ -50,7 +50,7 @@ public final class RestrictedSeekableByteChannelTest
     final var path = Files.createTempFile("restricted-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE)) {
-      try (var channel = RestrictedSeekableByteChannel.create(base, 0L, 1L, false)) {
+      try (var channel = RiffRestrictedSeekableByteChannel.create(base, 0L, 1L, false)) {
         channel.position(1_0L);
         channel.position(1_00L);
         channel.position(1_000L);
@@ -65,7 +65,7 @@ public final class RestrictedSeekableByteChannelTest
     final var path = Files.createTempFile("restricted-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE, READ)) {
-      try (var channel = RestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
+      try (var channel = RiffRestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
         channel.position(0L);
         channel.write(ByteBuffer.wrap(new byte[]{(byte) 0xff}));
 
@@ -87,7 +87,7 @@ public final class RestrictedSeekableByteChannelTest
     final var path = Files.createTempFile("restricted-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE, READ)) {
-      try (var channel = RestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
+      try (var channel = RiffRestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
         channel.position(20L);
 
         final var ex = Assertions.assertThrows(RiffOutOfBoundsException.class, () -> {
@@ -106,7 +106,7 @@ public final class RestrictedSeekableByteChannelTest
     final var path = Files.createTempFile("restricted-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE, READ)) {
-      try (var channel = RestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
+      try (var channel = RiffRestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
         base.position(10L);
         base.write(ByteBuffer.wrap(new byte[]{(byte) 0xff}));
 
@@ -129,7 +129,7 @@ public final class RestrictedSeekableByteChannelTest
     final var path = Files.createTempFile("restricted-bytechannel-", ".bin");
 
     try (var base = FileChannel.open(path, WRITE, READ)) {
-      try (var channel = RestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
+      try (var channel = RiffRestrictedSeekableByteChannel.create(base, 10L, 20L, false)) {
         channel.position(20L);
 
         final var ex = Assertions.assertThrows(RiffOutOfBoundsException.class, () -> {

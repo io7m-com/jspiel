@@ -28,7 +28,7 @@ import java.util.Objects;
  * A byte channel that can only access a specified range of a given underlying channel.
  */
 
-public final class RestrictedSeekableByteChannel implements SeekableByteChannel
+public final class RiffRestrictedSeekableByteChannel implements SeekableByteChannel
 {
   private final SeekableByteChannel delegate;
   private final long lower;
@@ -38,7 +38,7 @@ public final class RestrictedSeekableByteChannel implements SeekableByteChannel
   private long position_relative;
   private boolean closed;
 
-  private RestrictedSeekableByteChannel(
+  private RiffRestrictedSeekableByteChannel(
     final SeekableByteChannel in_channel,
     final long in_lower,
     final long in_upper,
@@ -74,7 +74,7 @@ public final class RestrictedSeekableByteChannel implements SeekableByteChannel
     final long in_upper,
     final boolean in_allow_close)
   {
-    return new RestrictedSeekableByteChannel(in_channel, in_lower, in_upper, in_allow_close);
+    return new RiffRestrictedSeekableByteChannel(in_channel, in_lower, in_upper, in_allow_close);
   }
 
   @Override

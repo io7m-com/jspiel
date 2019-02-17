@@ -308,7 +308,7 @@ public final class RiffWriters implements RiffFileWriterProviderType
       final RiffFileWriterChunkDescriptionType chunk)
       throws IOException
     {
-      try (var channel = RelativeSeekableByteChannel.create(base, base.position(), false)) {
+      try (var channel = RiffRelativeSeekableByteChannel.create(base, base.position(), false)) {
         this.writeChunkID(channel, chunk.id());
 
         this.sizes_offsets.put(
@@ -393,9 +393,9 @@ public final class RiffWriters implements RiffFileWriterProviderType
       final var lower = this.root_channel.position();
       if (declared_size.isPresent()) {
         final var upper = lower + declared_size.getAsLong();
-        return RestrictedSeekableByteChannel.create(this.root_channel, lower, upper, false);
+        return RiffRestrictedSeekableByteChannel.create(this.root_channel, lower, upper, false);
       }
-      return RelativeSeekableByteChannel.create(this.root_channel, lower, false);
+      return RiffRelativeSeekableByteChannel.create(this.root_channel, lower, false);
     }
   }
 }

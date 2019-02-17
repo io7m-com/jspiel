@@ -26,7 +26,7 @@ import java.util.Objects;
  * A byte channel that is offset by a fixed amount.
  */
 
-public final class RelativeSeekableByteChannel implements SeekableByteChannel
+public final class RiffRelativeSeekableByteChannel implements SeekableByteChannel
 {
   private final SeekableByteChannel delegate;
   private final long lower;
@@ -34,7 +34,7 @@ public final class RelativeSeekableByteChannel implements SeekableByteChannel
   private long position;
   private boolean closed;
 
-  private RelativeSeekableByteChannel(
+  private RiffRelativeSeekableByteChannel(
     final SeekableByteChannel in_channel,
     final long in_lower,
     final boolean in_allow_close)
@@ -60,7 +60,7 @@ public final class RelativeSeekableByteChannel implements SeekableByteChannel
     final long in_lower,
     final boolean in_allow_close)
   {
-    return new RelativeSeekableByteChannel(in_channel, in_lower, in_allow_close);
+    return new RiffRelativeSeekableByteChannel(in_channel, in_lower, in_allow_close);
   }
 
   @Override
