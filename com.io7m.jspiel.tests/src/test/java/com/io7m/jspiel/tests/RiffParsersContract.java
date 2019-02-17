@@ -16,7 +16,9 @@
 
 package com.io7m.jspiel.tests;
 
+import com.io7m.jspiel.api.RiffChunkID;
 import com.io7m.jspiel.api.RiffFileParserProviderType;
+import com.io7m.jspiel.api.RiffRequiredChunkMissingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +26,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
@@ -112,5 +117,74 @@ public abstract class RiffParsersContract
     Assertions.assertEquals("data", sc1.name().value(), "Chunk name matches");
     Assertions.assertEquals(192000L, sc1.dataSizeIncludingForm().size(), "Size matches");
     Assertions.assertEquals(192000L, sc1.dataSizeExcludingForm().size(), "Size matches");
+  }
+
+  @Test
+  public final void testFinds()
+    throws Exception
+  {
+    final var data = copyToByteBuffer("000_12_be.wav");
+    final var parsers = this.parsers();
+    final var parser = parsers.createForByteBuffer(URI.create("000_12_be.wav"), data);
+
+    final var file = parser.parse();
+    final var chunks = file.chunks();
+
+    Assertions.assertEquals(BIG_ENDIAN, file.byteOrder(), "Correct byte order");
+
+    Assertions.assertEquals(1L, (long) chunks.size(), "Expected one chunk");
+    final var chunk = chunks.get(0);
+
+    Assertions.assertThrows(
+      RiffRequiredChunkMissingException.class,
+      () -> chunk.findRequiredSubChunks(RiffChunkID.of("none")));
+    Assertions.assertThrows(
+      RiffRequiredChunkMissingException.class,
+      () -> chunk.findRequiredSubChunks("none"));
+    Assertions.assertThrows(
+      RiffRequiredChunkMissingException.class,
+      () -> chunk.findRequiredSubChunk(RiffChunkID.of("none")));
+    Assertions.assertThrows(
+      RiffRequiredChunkMissingException.class,
+      () -> chunk.findRequiredSubChunk("none"));
+
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findRequiredSubChunk("fmt ").name().value());
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findRequiredSubChunk(RiffChunkID.of("fmt ")).name().value());
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findRequiredSubChunks("fmt ").get(0).name().value());
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findRequiredSubChunks(RiffChunkID.of("fmt ")).get(0).name().value());
+
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findOptionalSubChunk("fmt ").get().name().value());
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findOptionalSubChunk(RiffChunkID.of("fmt ")).get().name().value());
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findOptionalSubChunks("fmt ").collect(Collectors.toList()).get(0).name().value());
+    Assertions.assertEquals(
+      "fmt ",
+      chunk.findOptionalSubChunks(RiffChunkID.of("fmt ")).collect(Collectors.toList()).get(0).name().value());
+
+    Assertions.assertEquals(
+      Optional.empty(),
+      chunk.findOptionalSubChunk("none"));
+    Assertions.assertEquals(
+      Optional.empty(),
+      chunk.findOptionalSubChunk(RiffChunkID.of("none")));
+    Assertions.assertEquals(
+      List.of(),
+      chunk.findOptionalSubChunks("none").collect(Collectors.toList()));
+    Assertions.assertEquals(
+      List.of(),
+      chunk.findOptionalSubChunks(RiffChunkID.of("none")).collect(Collectors.toList()));
   }
 }
