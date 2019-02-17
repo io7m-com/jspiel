@@ -42,10 +42,10 @@ public interface RiffFileType
    * @return The list of chunks in (depth-first) order
    */
 
-  default Stream<RiffChunkType> linearizedChunks()
+  default Stream<RiffChunkType> linearizedDescendantChunks()
   {
     return this.chunks()
       .stream()
-      .flatMap(RiffChunkType::linearizedSubChunks);
+      .flatMap(RiffChunkType::linearizedDescendantChunks);
   }
 }

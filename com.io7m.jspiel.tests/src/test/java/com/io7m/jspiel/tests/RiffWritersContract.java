@@ -115,7 +115,7 @@ public abstract class RiffWritersContract
       final var file = parser.parse();
 
       Assertions.assertEquals(LITTLE_ENDIAN, file.byteOrder(), "Correct byte order");
-      final var chunks = file.linearizedChunks().collect(Collectors.toList());
+      final var chunks = file.linearizedDescendantChunks().collect(Collectors.toList());
       Assertions.assertEquals(7, chunks.size(), "Correct chunk count");
 
       chunks.forEach(chunk -> logger.debug("chunk {}", chunk));

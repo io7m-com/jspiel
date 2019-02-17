@@ -86,11 +86,11 @@ public interface RiffChunkType
    * @return The linearized subchunks, including all descendants, in depth-first order
    */
 
-  default Stream<RiffChunkType> linearizedSubChunks()
+  default Stream<RiffChunkType> linearizedDescendantChunks()
   {
     return Stream.concat(
       Stream.of(this),
-      this.subChunks().stream().flatMap(RiffChunkType::linearizedSubChunks));
+      this.subChunks().stream().flatMap(RiffChunkType::linearizedDescendantChunks));
   }
 
   /**
