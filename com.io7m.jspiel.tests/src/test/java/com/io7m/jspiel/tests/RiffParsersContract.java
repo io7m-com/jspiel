@@ -16,6 +16,7 @@
 
 package com.io7m.jspiel.tests;
 
+import com.io7m.jspiel.api.RiffBuilderException;
 import com.io7m.jspiel.api.RiffChunkID;
 import com.io7m.jspiel.api.RiffFileParserProviderType;
 import com.io7m.jspiel.api.RiffFileWriterDescriptionType;
@@ -222,6 +223,23 @@ public abstract class RiffParsersContract
 
   @Test
   public final void testTooSmall1()
+    throws Exception
+  {
+    final var parsers = this.parsers();
+    final var writers = new RiffWriters();
+
+    final var builders = new RiffFileBuilders();
+    final var builder = builders.create(LITTLE_ENDIAN);
+
+    try (var chunk = builder.setRootChunk(RiffChunkID.of("RIFF"), "badx")) {
+      chunk.addSubChunk(RiffChunkID.of("abcd"));
+    }
+
+    serializeThenParseRIFF(parsers, writers, builder.build());
+  }
+
+  @Test
+  public final void testTooSmall2()
   {
     final var parsers = this.parsers();
     final var writers = new RiffWriters();

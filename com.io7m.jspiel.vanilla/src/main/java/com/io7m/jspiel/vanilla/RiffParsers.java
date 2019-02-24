@@ -478,7 +478,7 @@ public final class RiffParsers implements RiffFileParserProviderType
       }
 
       final var expected_sub_chunks_size = size.size() - 4L;
-      if (Long.compareUnsigned(expected_sub_chunks_size, 8L) <= 0) {
+      if (Long.compareUnsigned(expected_sub_chunks_size, 4L) <= 0) {
         throw this.chunkTooSmallForSubchunks(offset, name, expected_sub_chunks_size);
       }
       return expected_sub_chunks_size;
