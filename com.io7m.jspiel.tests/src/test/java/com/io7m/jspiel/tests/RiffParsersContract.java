@@ -18,7 +18,12 @@ package com.io7m.jspiel.tests;
 
 import com.io7m.jspiel.api.RiffChunkID;
 import com.io7m.jspiel.api.RiffFileParserProviderType;
+import com.io7m.jspiel.api.RiffFileWriterDescriptionType;
+import com.io7m.jspiel.api.RiffParseException;
 import com.io7m.jspiel.api.RiffRequiredChunkMissingException;
+import com.io7m.jspiel.api.RiffWriteException;
+import com.io7m.jspiel.vanilla.RiffFileBuilders;
+import com.io7m.jspiel.vanilla.RiffWriters;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,12 +31,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static java.nio.channels.FileChannel.MapMode.READ_ONLY;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 public abstract class RiffParsersContract
 {
@@ -186,5 +198,63 @@ public abstract class RiffParsersContract
     Assertions.assertEquals(
       List.of(),
       chunk.findOptionalSubChunks(RiffChunkID.of("none")).collect(Collectors.toList()));
+  }
+
+  @Test
+  public final void testTooSmall0()
+  {
+    final var parsers = this.parsers();
+    final var writers = new RiffWriters();
+
+    final var builders = new RiffFileBuilders();
+    final var builder = builders.create(LITTLE_ENDIAN);
+
+    try (var ignored = builder.setRootChunk(RiffChunkID.of("RIFF"), "badx")) {
+
+    }
+
+    final var ex = Assertions.assertThrows(
+      RiffParseException.class,
+      () -> serializeThenParseRIFF(parsers, writers, builder.build()));
+
+    Assertions.assertTrue(ex.getMessage().contains("too small"));
+  }
+
+  @Test
+  public final void testTooSmall1()
+  {
+    final var parsers = this.parsers();
+    final var writers = new RiffWriters();
+
+    final var builders = new RiffFileBuilders();
+    final var builder = builders.create(LITTLE_ENDIAN);
+
+    try (var chunk = builder.setRootChunk(RiffChunkID.of("RIFF"), "badx")) {
+      chunk.setSize(8L);
+      chunk.setDataWriter(data -> ByteBuffer.allocate(8));
+    }
+
+    final var ex = Assertions.assertThrows(
+      RiffParseException.class,
+      () -> serializeThenParseRIFF(parsers, writers, builder.build()));
+
+    Assertions.assertTrue(ex.getMessage().contains("too small to contain any subchunks"));
+  }
+
+  private static void serializeThenParseRIFF(
+    final RiffFileParserProviderType parsers,
+    final RiffWriters writers,
+    final RiffFileWriterDescriptionType built)
+    throws IOException, RiffWriteException, RiffParseException
+  {
+    final var path = Files.createTempFile("jspiel-", ".riff");
+    try (final var channel = FileChannel.open(path, READ, WRITE, CREATE, TRUNCATE_EXISTING)) {
+      final var writer = writers.createForChannel(path.toUri(), built, channel);
+      writer.write();
+
+      final var map = channel.map(READ_ONLY, 0L, channel.size());
+      final var parser = parsers.createForByteBuffer(path.toUri(), map);
+      parser.parse();
+    }
   }
 }

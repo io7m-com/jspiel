@@ -141,7 +141,12 @@ public final class RiffParsers implements RiffFileParserProviderType
       this.data.position(Math.toIntExact(offset));
 
       final var parse =
-        new ChunkParser(0, Optional.empty(), this.source, this.data, Integer.toUnsignedLong(limit))
+        new ChunkParser(
+          0,
+          Optional.empty(),
+          this.source,
+          this.data,
+          Integer.toUnsignedLong(limit))
           .parse();
 
       return new RiffFile(this.data.order(), parse);
@@ -286,6 +291,11 @@ public final class RiffParsers implements RiffFileParserProviderType
       final ByteBuffer in_data,
       final long in_limit)
     {
+      Preconditions.checkPreconditionL(
+        in_limit,
+        in_limit > 0L,
+        x -> "Limit must be positive");
+
       this.depth = in_depth;
       this.parent =
         Objects.requireNonNull(in_parent, "parent");
@@ -307,6 +317,7 @@ public final class RiffParsers implements RiffFileParserProviderType
     }
 
     List<RiffChunkType> parse()
+      throws RiffParseException
     {
       if (LOG.isTraceEnabled()) {
         LOG.trace(
@@ -347,7 +358,9 @@ public final class RiffParsers implements RiffFileParserProviderType
                 Long.valueOf(chunk.totalSize()));
             }
 
-            final var expected_sub_chunks_size = size.size() - 4L;
+            final var expected_sub_chunks_size =
+              this.calculateExpectedSubchunksSize(offset, name, size);
+
             final var parser =
               new ChunkParser(
                 this.depth + 1,
@@ -384,7 +397,9 @@ public final class RiffParsers implements RiffFileParserProviderType
                 Long.valueOf(chunk.totalSize()));
             }
 
-            final var expected_sub_chunks_size = size.size() - 4L;
+            final var expected_sub_chunks_size =
+              this.calculateExpectedSubchunksSize(offset, name, size);
+
             final var parser =
               new ChunkParser(
                 this.depth + 1,
@@ -452,6 +467,67 @@ public final class RiffParsers implements RiffFileParserProviderType
       return chunks;
     }
 
+    private long calculateExpectedSubchunksSize(
+      final long offset,
+      final RiffChunkID name,
+      final RiffSize size)
+      throws RiffParseException
+    {
+      if (Long.compareUnsigned(size.size(), 4L) <= 0) {
+        throw this.chunkTooSmall(offset, name, size);
+      }
+
+      final var expected_sub_chunks_size = size.size() - 4L;
+      if (Long.compareUnsigned(expected_sub_chunks_size, 8L) <= 0) {
+        throw this.chunkTooSmallForSubchunks(offset, name, expected_sub_chunks_size);
+      }
+      return expected_sub_chunks_size;
+    }
+
+    private RiffParseException chunkTooSmall(
+      final long offset,
+      final RiffChunkID name,
+      final RiffSize size)
+    {
+      return new RiffParseException(
+        new StringBuilder("Chunk too small.")
+          .append(System.lineSeparator())
+          .append("  Chunk name: ")
+          .append(name.value())
+          .append(System.lineSeparator())
+          .append("  Chunk offset: 0x")
+          .append(Long.toUnsignedString(offset, 16))
+          .append(System.lineSeparator())
+          .append("  Chunk data size: ")
+          .append(Long.toUnsignedString(size.size(), 10))
+          .append(System.lineSeparator())
+          .toString(),
+        this.uri,
+        offset);
+    }
+
+    private RiffParseException chunkTooSmallForSubchunks(
+      final long offset,
+      final RiffChunkID name,
+      final long size)
+    {
+      return new RiffParseException(
+        new StringBuilder("Chunk too small to contain any subchunks.")
+          .append(System.lineSeparator())
+          .append("  Chunk name: ")
+          .append(name.value())
+          .append(System.lineSeparator())
+          .append("  Chunk offset: 0x")
+          .append(Long.toUnsignedString(offset, 16))
+          .append(System.lineSeparator())
+          .append("  Chunk data size: ")
+          .append(Long.toUnsignedString(size, 10))
+          .append(System.lineSeparator())
+          .toString(),
+        this.uri,
+        offset);
+    }
+
     private String readFormType(
       final long position_start)
     {
@@ -482,10 +558,11 @@ public final class RiffParsers implements RiffFileParserProviderType
     private void checkBounds(
       final long position_start)
     {
+      final var upper = position_start + this.limit;
       Preconditions.checkPreconditionL(
         (long) this.data.position(),
-        (long) this.data.position() <= position_start + this.limit,
-        p -> "Position must be in bounds");
+        (long) this.data.position() <= upper,
+        p -> "Position must be <= upper value " + upper);
     }
   }
 }
