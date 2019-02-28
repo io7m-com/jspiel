@@ -203,7 +203,7 @@ public final class RiffFileBuilders implements RiffFileBuilderProviderType
       private Description owner;
       private Optional<ChunkDescription> parent;
       private long ordinal;
-      private Optional<RiffChunkDataWriterType> data_writer;
+      private final Optional<RiffChunkDataWriterType> data_writer;
 
       ChunkDescription(
         final Description in_owner,

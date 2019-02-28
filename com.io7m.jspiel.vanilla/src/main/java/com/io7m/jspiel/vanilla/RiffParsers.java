@@ -95,8 +95,14 @@ public final class RiffParsers implements RiffFileParserProviderType
     public RiffFileType parse()
       throws RiffParseException
     {
-      final var offset = Integer.toUnsignedLong(this.data.position());
+      final var starting_offset = Integer.toUnsignedLong(this.data.position());
       final var limit = this.data.remaining();
+
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("starting parsing: position 0x{}, {} octet limit",
+                  Long.toUnsignedString(starting_offset, 16),
+                  Integer.valueOf(limit));
+      }
 
       final var buffer4 = new byte[4];
       this.data.get(buffer4);
@@ -134,19 +140,17 @@ public final class RiffParsers implements RiffFileParserProviderType
               .append(separator)
               .toString(),
             this.source,
-            offset);
+            starting_offset);
         }
       }
 
-      this.data.position(Math.toIntExact(offset));
+      final var view = this.data.duplicate();
+      view.position(Math.toIntExact(starting_offset));
+      view.limit(limit);
+      view.order(this.data.order());
 
       final var parse =
-        new ChunkParser(
-          0,
-          Optional.empty(),
-          this.source,
-          this.data,
-          Integer.toUnsignedLong(limit))
+        new ChunkParser(0, Optional.empty(), this.source, view)
           .parse();
 
       return new RiffFile(this.data.order(), parse);
@@ -183,10 +187,10 @@ public final class RiffParsers implements RiffFileParserProviderType
   {
     private final Optional<String> form_type;
     private final Optional<RiffChunkType> parent;
-    private RiffChunkID name;
-    private RiffSize size;
-    private List<RiffChunkType> sub_chunks;
-    private long offset;
+    private final RiffChunkID name;
+    private final RiffSize size;
+    private final List<RiffChunkType> sub_chunks;
+    private final long offset;
 
     private RiffChunk(
       final Optional<RiffChunkType> in_parent,
@@ -277,8 +281,7 @@ public final class RiffParsers implements RiffFileParserProviderType
 
   private static final class ChunkParser
   {
-    private final ByteBuffer data;
-    private final long limit;
+    private final ByteBuffer buffer;
     private final URI uri;
     private final byte[] buffer4;
     private final Optional<RiffChunkType> parent;
@@ -288,23 +291,17 @@ public final class RiffParsers implements RiffFileParserProviderType
       final int in_depth,
       final Optional<RiffChunkType> in_parent,
       final URI in_uri,
-      final ByteBuffer in_data,
-      final long in_limit)
+      final ByteBuffer in_data)
     {
       Preconditions.checkPreconditionL(
-        in_limit,
-        in_limit > 0L,
-        x -> "Limit must be positive");
+        in_data.remaining(),
+        in_data.remaining() >= 0L,
+        x -> "Limit must be non-zero");
 
       this.depth = in_depth;
-      this.parent =
-        Objects.requireNonNull(in_parent, "parent");
-      this.uri =
-        Objects.requireNonNull(in_uri, "uri");
-      this.data =
-        Objects.requireNonNull(in_data, "data");
-
-      this.limit = in_limit;
+      this.parent = Objects.requireNonNull(in_parent, "parent");
+      this.uri = Objects.requireNonNull(in_uri, "uri");
+      this.buffer = Objects.requireNonNull(in_data, "in_data");
       this.buffer4 = new byte[4];
     }
 
@@ -323,111 +320,90 @@ public final class RiffParsers implements RiffFileParserProviderType
         LOG.trace(
           "[{}]: parsing subchunks ({} octet limit)",
           Integer.valueOf(this.depth),
-          Long.valueOf(this.limit));
+          Long.valueOf(Integer.toUnsignedLong(this.buffer.limit())));
       }
 
-      final ArrayList<RiffChunkType> chunks = new ArrayList<>(8);
+      final var chunks = new ArrayList<RiffChunkType>(8);
+      while (remaining(this.buffer) > 0L) {
+        final var subchunk_start_offset =
+          Integer.toUnsignedLong(this.buffer.position());
 
-      final var position_start = Integer.toUnsignedLong(this.data.position());
-      var remaining = this.limit;
-      while (remaining > 0L) {
-        this.checkBounds(position_start);
+        final var name = this.readChunkName(this.buffer);
+        final var size = this.readChunkSize(this.buffer, name);
 
-        final var offset = Integer.toUnsignedLong(this.data.position());
-        final var name = this.readChunkName(position_start);
-        final var size = this.readChunkSize(position_start);
+        final var subchunk_data_offset =
+          Integer.toUnsignedLong(this.buffer.position());
 
-        final var sub_chunks = new ArrayList<RiffChunkType>(8);
+        this.checkSizeDoesNotExhaustRemaining(this.buffer, name, size.size());
+
+        final var expected_subchunks_size = Math.toIntExact(size.size());
+        final var view = this.buffer.slice();
+        view.limit(expected_subchunks_size);
+        view.order(this.buffer.order());
+
         switch (name.value()) {
+          case FOURCC_LIST:
           case FOURCC_FFIR:
           case FOURCC_RIFX:
           case FOURCC_RIFF: {
             final var form_type =
-              this.readFormType(position_start);
+              this.readFormType(view, name);
+
+            final var sub_chunks = new ArrayList<RiffChunkType>(8);
             final var chunk =
-              new RiffChunk(this.parent, offset, name, size, Optional.of(form_type), sub_chunks);
+              new RiffChunk(
+                this.parent,
+                this.absoluteOffsetFor(subchunk_start_offset),
+                name,
+                size,
+                Optional.of(form_type),
+                sub_chunks);
 
             if (LOG.isDebugEnabled()) {
               LOG.debug(
                 "[{}]: chunk: 0x{} {} (form {}) (size {} [total {}])",
                 Integer.valueOf(this.depth),
-                Long.toUnsignedString(offset, 16),
+                Long.toUnsignedString(chunk.offset, 16),
                 name.value(),
                 form_type,
                 size,
                 Long.valueOf(chunk.totalSize()));
             }
 
-            final var expected_sub_chunks_size =
-              this.calculateExpectedSubchunksSize(offset, name, size);
-
             final var parser =
-              new ChunkParser(
-                this.depth + 1,
-                Optional.of(chunk),
-                this.uri,
-                this.data,
-                expected_sub_chunks_size);
+              new ChunkParser(this.depth + 1, Optional.of(chunk), this.uri, view);
 
             sub_chunks.addAll(parser.parse());
             chunks.add(chunk);
 
-            final var sub_chunks_size = sumSubchunks(sub_chunks);
+            /*
+             * The received size is the sum of the sizes of all of the subchunks, plus four
+             * octets for the form type at the start of this chunk.
+             */
+
+            final var sub_chunks_size = Math.addExact(sumSubchunks(sub_chunks), 4L);
             Postconditions.checkPostconditionL(
               sub_chunks_size,
-              sub_chunks_size == expected_sub_chunks_size,
-              received -> "Subchunks size must match");
-            break;
-          }
-
-          case FOURCC_LIST: {
-            final var form_type =
-              this.readFormType(position_start);
-            final var chunk =
-              new RiffChunk(this.parent, offset, name, size, Optional.of(form_type), sub_chunks);
-
-            if (LOG.isDebugEnabled()) {
-              LOG.debug(
-                "[{}]: chunk: 0x{} {} (form {}) (size {} [total {}])",
-                Integer.valueOf(this.depth),
-                Long.toUnsignedString(offset, 16),
-                name.value(),
-                form_type,
-                size,
-                Long.valueOf(chunk.totalSize()));
-            }
-
-            final var expected_sub_chunks_size =
-              this.calculateExpectedSubchunksSize(offset, name, size);
-
-            final var parser =
-              new ChunkParser(
-                this.depth + 1,
-                Optional.of(chunk),
-                this.uri,
-                this.data,
-                expected_sub_chunks_size);
-
-            sub_chunks.addAll(parser.parse());
-            chunks.add(chunk);
-
-            final var sub_chunks_size = sumSubchunks(sub_chunks);
-            Postconditions.checkPostconditionL(
-              sub_chunks_size,
-              sub_chunks_size == expected_sub_chunks_size,
-              received -> "Subchunks size must match");
+              sub_chunks_size == expected_subchunks_size,
+              received -> "Parsed subchunks size must match expected size " + expected_subchunks_size);
             break;
           }
 
           default:
             final var chunk =
-              new RiffChunk(this.parent, offset, name, size, Optional.empty(), List.of());
+              new RiffChunk(
+                this.parent,
+                this.absoluteOffsetFor(subchunk_start_offset),
+                name,
+                size,
+                Optional.empty(),
+                List.of());
 
             if (LOG.isDebugEnabled()) {
               LOG.debug(
                 "[{}]: chunk: 0x{} {} (size {} [total {}])",
                 Integer.valueOf(this.depth),
-                Long.toUnsignedString(offset, 16),
+                Long.toUnsignedString(chunk.offset, 16),
                 name.value(),
                 size,
                 Long.valueOf(chunk.totalSize()));
@@ -437,25 +413,13 @@ public final class RiffParsers implements RiffFileParserProviderType
             break;
         }
 
-        final var seek_size = 4L + 4L + size.size();
-        if (LOG.isTraceEnabled()) {
-          LOG.trace(
-            "[{}]: remaining: {} - {} = {}",
-            Integer.valueOf(this.depth),
-            Long.valueOf(remaining),
-            Long.valueOf(seek_size),
-            Long.valueOf(remaining - seek_size));
-        }
-
-        remaining -= seek_size;
-        final var seek_to = offset + seek_size;
-        this.data.position(Math.toIntExact(seek_to));
-        this.checkBounds(position_start);
+        final var seek_to = Math.addExact(subchunk_data_offset, size.size());
+        this.buffer.position(Math.toIntExact(seek_to));
       }
 
       Postconditions.checkPostconditionL(
-        remaining,
-        remaining == 0L,
+        remaining(this.buffer),
+        remaining(this.buffer) == 0L,
         size -> "Remaining octets must be zero");
 
       if (LOG.isTraceEnabled()) {
@@ -467,102 +431,136 @@ public final class RiffParsers implements RiffFileParserProviderType
       return chunks;
     }
 
-    private long calculateExpectedSubchunksSize(
-      final long offset,
-      final RiffChunkID name,
-      final RiffSize size)
-      throws RiffParseException
+    private long absoluteOffset()
     {
-      if (Long.compareUnsigned(size.size(), 4L) <= 0) {
-        throw this.chunkTooSmall(offset, name, size);
-      }
-
-      final var expected_sub_chunks_size = size.size() - 4L;
-      if (Long.compareUnsigned(expected_sub_chunks_size, 4L) <= 0) {
-        throw this.chunkTooSmallForSubchunks(offset, name, expected_sub_chunks_size);
-      }
-      return expected_sub_chunks_size;
+      return this.absoluteOffsetFor(Integer.toUnsignedLong(this.buffer.position()));
     }
 
-    private RiffParseException chunkTooSmall(
-      final long offset,
-      final RiffChunkID name,
-      final RiffSize size)
+    private long absoluteOffsetFor(final long relative)
     {
-      return new RiffParseException(
-        new StringBuilder("Chunk too small.")
-          .append(System.lineSeparator())
-          .append("  Chunk name: ")
-          .append(name.value())
-          .append(System.lineSeparator())
-          .append("  Chunk offset: 0x")
-          .append(Long.toUnsignedString(offset, 16))
-          .append(System.lineSeparator())
-          .append("  Chunk data size: ")
-          .append(Long.toUnsignedString(size.size(), 10))
-          .append(System.lineSeparator())
-          .toString(),
-        this.uri,
-        offset);
+      return Math.addExact(this.parentDataOffset(), relative);
     }
 
-    private RiffParseException chunkTooSmallForSubchunks(
-      final long offset,
+    private long parentDataOffset()
+    {
+      return this.parent.map(p -> Long.valueOf(p.dataOffset()))
+        .orElse(Long.valueOf(0L))
+        .longValue();
+    }
+
+    private static long remaining(final ByteBuffer buffer)
+    {
+      return Integer.toUnsignedLong(buffer.remaining());
+    }
+
+    private void checkSizeDoesNotExhaustRemaining(
+      final ByteBuffer view,
       final RiffChunkID name,
       final long size)
+      throws RiffParseException
     {
+      if (remaining(view) < size) {
+        throw this.chunkSizeIllegal(name, this.absoluteOffset(), remaining(view), size);
+      }
+    }
+
+    private RiffParseException chunkSizeIllegal(
+      final RiffChunkID name,
+      final long offset,
+      final long remaining,
+      final long size)
+    {
+      final var separator = System.lineSeparator();
       return new RiffParseException(
-        new StringBuilder("Chunk too small to contain any subchunks.")
-          .append(System.lineSeparator())
+        new StringBuilder(128)
+          .append("RIFF file specifies illegal chunk size")
+          .append(separator)
+          .append("  Problem: Chunk size exceeds the limit specified by the parent chunk")
+          .append(separator)
           .append("  Chunk name: ")
           .append(name.value())
-          .append(System.lineSeparator())
+          .append(separator)
           .append("  Chunk offset: 0x")
           .append(Long.toUnsignedString(offset, 16))
-          .append(System.lineSeparator())
-          .append("  Chunk data size: ")
-          .append(Long.toUnsignedString(size, 10))
-          .append(System.lineSeparator())
+          .append(separator)
+          .append("  Remaining space: ")
+          .append(Long.toUnsignedString(remaining))
+          .append(separator)
+          .append("  Specified size: ")
+          .append(Long.toUnsignedString(size))
+          .append(separator)
           .toString(),
         this.uri,
         offset);
     }
 
     private String readFormType(
-      final long position_start)
+      final ByteBuffer view,
+      final RiffChunkID name)
+      throws RiffParseException
     {
-      this.data.get(this.buffer4);
+      this.checkRemainingBufferSpace(view, Optional.of(name), "Chunk form type", 4L);
+      view.get(this.buffer4);
       // CHECKSTYLE:OFF
-      final var form_type = new String(this.buffer4, US_ASCII);
+      return new String(this.buffer4, US_ASCII);
       // CHECKSTYLE:ON
-      this.checkBounds(position_start);
-      return form_type;
     }
 
     private RiffSize readChunkSize(
-      final long position_start)
+      final ByteBuffer view,
+      final RiffChunkID name)
+      throws RiffParseException
     {
-      final var size = Integer.toUnsignedLong(this.data.getInt());
-      this.checkBounds(position_start);
+      this.checkRemainingBufferSpace(view, Optional.of(name), "Chunk size", 4L);
+      final var size = Integer.toUnsignedLong(view.getInt());
       return RiffSizes.padIfNecessary(size);
     }
 
-    private RiffChunkID readChunkName(
-      final long position_start)
+    private void checkRemainingBufferSpace(
+      final ByteBuffer view,
+      final Optional<RiffChunkID> name,
+      final String reading,
+      final long required)
+      throws RiffParseException
     {
-      this.data.get(this.buffer4);
-      this.checkBounds(position_start);
-      return RiffChunkIDs.ofBytes(this.buffer4);
+      if (required > remaining(view)) {
+        final var separator = System.lineSeparator();
+        final var message =
+          new StringBuilder("Chunk data is truncated or does not match declared size.")
+            .append(separator);
+
+        name.ifPresent(
+          n -> message.append("  Chunk name: ")
+            .append(n.value())
+            .append(separator));
+
+        throw new RiffParseException(
+          message
+            .append("  Current offset: 0x")
+            .append(Long.toUnsignedString(this.absoluteOffset()))
+            .append(separator)
+            .append("  Whilst reading: ")
+            .append(reading)
+            .append(separator)
+            .append("  Required size: ")
+            .append(Long.toUnsignedString(required, 10))
+            .append(separator)
+            .append("  Remaining size: ")
+            .append(Long.toUnsignedString(remaining(view), 10))
+            .append(separator)
+            .toString(),
+          this.uri,
+          (long) this.buffer.position());
+      }
     }
 
-    private void checkBounds(
-      final long position_start)
+    private RiffChunkID readChunkName(
+      final ByteBuffer view)
+      throws RiffParseException
     {
-      final var upper = position_start + this.limit;
-      Preconditions.checkPreconditionL(
-        (long) this.data.position(),
-        (long) this.data.position() <= upper,
-        p -> "Position must be <= upper value " + upper);
+      this.checkRemainingBufferSpace(view, Optional.empty(), "Chunk name", 4L);
+      this.buffer.get(this.buffer4);
+      return RiffChunkIDs.ofBytes(this.buffer4);
     }
   }
 }

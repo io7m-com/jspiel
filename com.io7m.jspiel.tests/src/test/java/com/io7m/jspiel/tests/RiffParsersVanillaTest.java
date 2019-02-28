@@ -18,9 +18,17 @@ package com.io7m.jspiel.tests;
 
 import com.io7m.jspiel.api.RiffFileParserProviderType;
 import com.io7m.jspiel.vanilla.RiffParsers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class RiffParsersVanillaTest extends RiffParsersContract
 {
+  @Override
+  protected Logger logger()
+  {
+    return LoggerFactory.getLogger(RiffParsersVanillaTest.class);
+  }
+
   @Override
   protected RiffFileParserProviderType parsers()
   {
