@@ -402,7 +402,7 @@ public abstract class RiffParsersContract
     final var builder = builders.create(LITTLE_ENDIAN);
 
     try (var ignored = builder.setRootChunk(RiffChunkID.of("RIFF"), "badx")) {
-
+      ignored.setDataWriter(data -> { });
     }
 
     final var ex = Assertions.assertThrows(
