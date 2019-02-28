@@ -203,7 +203,7 @@ public final class RiffFileBuilders implements RiffFileBuilderProviderType
       private Description owner;
       private Optional<ChunkDescription> parent;
       private long ordinal;
-      private Optional<RiffChunkDataWriterType> data_writer;
+      private final Optional<RiffChunkDataWriterType> data_writer;
 
       ChunkDescription(
         final Description in_owner,
@@ -332,6 +332,11 @@ public final class RiffFileBuilders implements RiffFileBuilderProviderType
         throws IllegalStateException
       {
         this.closed = true;
+
+        if (this.children.isEmpty() && this.data_writer.isEmpty()) {
+          throw new IllegalStateException(
+            "Must provide either a data writer or a list of subchunks");
+        }
       }
 
       @Override

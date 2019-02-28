@@ -137,7 +137,7 @@ public final class RiffWriters implements RiffFileWriterProviderType
       return wrote;
     }
 
-    private int writeASCII(
+    private static int writeASCII(
       final SeekableByteChannel channel,
       final String text)
       throws IOException
@@ -146,12 +146,12 @@ public final class RiffWriters implements RiffFileWriterProviderType
       return writeChecked(channel, ByteBuffer.wrap(data), data.length);
     }
 
-    private int writeChunkID(
+    private static int writeChunkID(
       final SeekableByteChannel channel,
       final RiffChunkID id)
       throws IOException
     {
-      return this.writeASCII(channel, id.value());
+      return writeASCII(channel, id.value());
     }
 
     private int writeUnsigned8(
@@ -309,7 +309,7 @@ public final class RiffWriters implements RiffFileWriterProviderType
       throws IOException
     {
       try (var channel = RiffRelativeSeekableByteChannel.create(base, base.position(), false)) {
-        this.writeChunkID(channel, chunk.id());
+        writeChunkID(channel, chunk.id());
 
         this.sizes_offsets.put(
           Long.valueOf(chunk.ordinal()),
@@ -318,7 +318,7 @@ public final class RiffWriters implements RiffFileWriterProviderType
 
         final var form_option = chunk.form();
         if (form_option.isPresent()) {
-          this.writeASCII(channel, form_option.get());
+          writeASCII(channel, form_option.get());
         }
 
         final var data_writer_opt = chunk.dataWriter();

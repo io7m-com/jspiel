@@ -21,6 +21,9 @@ import java.util.OptionalLong;
 
 /**
  * A builder for RIFF chunks.
+ *
+ * It is an error to attempt to close a chunk without having called either of {@link
+ * #addSubChunk(RiffChunkID)} or {@link #setDataWriter(RiffChunkDataWriterType)}.
  */
 
 public interface RiffChunkBuilderType extends AutoCloseable

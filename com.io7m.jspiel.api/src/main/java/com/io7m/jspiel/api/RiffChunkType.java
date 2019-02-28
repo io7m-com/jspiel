@@ -85,6 +85,18 @@ public interface RiffChunkType
   }
 
   /**
+   * @return The absolute offset in octets of the start of this chunk's data, after any form type
+   * field that may be present, within the RIFF file
+   */
+
+  default long dataOffsetAfterForm()
+  {
+    return Math.addExact(
+      this.dataOffset(),
+      this.formType().isPresent() ? 4L : 0L);
+  }
+
+  /**
    * @return The linearized subchunks, including all descendants, in depth-first order
    */
 

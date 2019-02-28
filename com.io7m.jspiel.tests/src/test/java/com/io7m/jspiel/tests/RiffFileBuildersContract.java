@@ -37,7 +37,7 @@ public abstract class RiffFileBuildersContract
   protected abstract RiffFileBuilderProviderType builders();
 
   @Test
-  public void testTrivial()
+  public final void testTrivial()
     throws Exception
   {
     final var logger = this.logger();
@@ -46,6 +46,7 @@ public abstract class RiffFileBuildersContract
 
     try (var root_chunk = builder.setRootChunk(RiffChunkID.of("RIFX"), "io7m")) {
       root_chunk.setSize(100L);
+      root_chunk.setDataWriter(data -> { });
     }
 
     final var description = builder.build();
@@ -60,7 +61,46 @@ public abstract class RiffFileBuildersContract
   }
 
   @Test
-  public void testSubchunks()
+  public final void testWriterNotChunks()
+    throws Exception
+  {
+    final var logger = this.logger();
+    final var builders = this.builders();
+    final var builder = builders.create(BIG_ENDIAN);
+
+    try (var root_chunk = builder.setRootChunk(RiffChunkID.of("RIFX"), "io7m")) {
+      root_chunk.setSize(100L);
+      root_chunk.setDataWriter(data -> { });
+
+      Assertions.assertThrows(IllegalStateException.class, () -> {
+        try (var x = root_chunk.addSubChunk(RiffChunkID.of("xxxx"))) {
+          x.setDataWriter(data -> { });
+        }
+      });
+    }
+  }
+
+  @Test
+  public final void testChunksNotWriter()
+    throws Exception
+  {
+    final var logger = this.logger();
+    final var builders = this.builders();
+    final var builder = builders.create(BIG_ENDIAN);
+
+    try (var root_chunk = builder.setRootChunk(RiffChunkID.of("RIFX"), "io7m")) {
+      try (var x = root_chunk.addSubChunk(RiffChunkID.of("xxxx"))) {
+        x.setDataWriter(data -> { });
+      }
+
+      Assertions.assertThrows(IllegalStateException.class, () -> {
+        root_chunk.setDataWriter(data -> { });
+      });
+    }
+  }
+
+  @Test
+  public final void testSubchunks()
     throws Exception
   {
     final var logger = this.logger();
@@ -74,13 +114,13 @@ public abstract class RiffFileBuildersContract
           .setSize(100L);
 
         try (var ignored = list_chunk.addSubChunk(RiffChunkID.of("AAAA"))) {
-
+          ignored.setDataWriter(data -> { });
         }
         try (var ignored = list_chunk.addSubChunk(RiffChunkID.of("BBBB"))) {
-
+          ignored.setDataWriter(data -> { });
         }
         try (var ignored = list_chunk.addSubChunk(RiffChunkID.of("CCCC"))) {
-
+          ignored.setDataWriter(data -> { });
         }
       }
 
@@ -90,13 +130,13 @@ public abstract class RiffFileBuildersContract
           .setSize(100L);
 
         try (var ignored = list_chunk.addSubChunk(RiffChunkID.of("DDDD"))) {
-
+          ignored.setDataWriter(data -> { });
         }
         try (var ignored = list_chunk.addSubChunk(RiffChunkID.of("EEEE"))) {
-
+          ignored.setDataWriter(data -> { });
         }
         try (var ignored = list_chunk.addSubChunk(RiffChunkID.of("FFFF"))) {
-
+          ignored.setDataWriter(data -> { });
         }
       }
     }
