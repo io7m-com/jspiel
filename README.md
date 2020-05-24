@@ -7,6 +7,5 @@ jspiel
 [![Codacy grade](https://img.shields.io/codacy/grade/2bab1f947e904440aad774d307955307.png?style=flat-square)](https://www.codacy.com/app/github_79/jspiel)
 [![Codecov](https://img.shields.io/codecov/c/github/io7m/jspiel.png?style=flat-square)](https://codecov.io/gh/io7m/jspiel)
 
-See https://www.io7m.com/software/jspiel/ for more information.
-
 ![jspiel](./src/site/resources/jspiel.jpg?raw=true)
+
