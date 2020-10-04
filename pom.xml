@@ -82,8 +82,8 @@
   </distributionManagement>
 
   <ciManagement>
-    <system>Travis CI</system>
-    <url>https://travis-ci.org/io7m/jspiel</url>
+    <system>GitHub Actions</system>
+    <url>https://github.com/jspiel/actions</url>
   </ciManagement>
 
   <prerequisites>
