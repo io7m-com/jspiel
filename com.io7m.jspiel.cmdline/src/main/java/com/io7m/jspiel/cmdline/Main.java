@@ -101,7 +101,6 @@ public final class Main implements Runnable
       final var command = this.commands.get(cmd);
       command.call();
     } catch (final ParameterException e) {
-      final var sb = new StringBuilder(128);
       this.commander.usage();
       LOG.error("{}\n{}", e.getMessage(), console.text());
       this.exit_code = 1;
