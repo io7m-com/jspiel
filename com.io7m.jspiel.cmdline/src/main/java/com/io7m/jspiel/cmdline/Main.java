@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 Mark Raynsford <code@io7m.com> http://io7m.com
+ * Copyright © 2019 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -84,23 +84,25 @@ public final class Main implements Runnable
   @Override
   public void run()
   {
+    final var console = new StringConsole();
+
     try {
+      this.commander.setConsole(console);
       this.commander.parse(this.args);
 
       final var cmd = this.commander.getParsedCommand();
       if (cmd == null) {
-        final var sb = new StringBuilder(128);
-        this.commander.usage(sb);
-        LOG.info("Arguments required.\n{}", sb.toString());
+        this.commander.setConsole(console);
+        this.commander.usage();
+        LOG.info("Arguments required.\n{}", console.text());
         return;
       }
 
       final var command = this.commands.get(cmd);
       command.call();
     } catch (final ParameterException e) {
-      final var sb = new StringBuilder(128);
-      this.commander.usage(sb);
-      LOG.error("{}\n{}", e.getMessage(), sb.toString());
+      this.commander.usage();
+      LOG.error("{}\n{}", e.getMessage(), console.text());
       this.exit_code = 1;
     } catch (final Exception e) {
       LOG.error("{}", e.getMessage(), e);
