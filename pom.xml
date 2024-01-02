@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor.full</artifactId>
-    <version>7.5.0</version>
+    <version>8.1.0</version>
   </parent>
 
   <groupId>com.io7m.jspiel</groupId>
@@ -115,7 +115,7 @@
       <dependency>
         <groupId>com.io7m.primogenitor</groupId>
         <artifactId>com.io7m.primogenitor.support</artifactId>
-        <version>7.5.0</version>
+        <version>8.1.0</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.junreachable</groupId>
@@ -155,7 +155,7 @@
       <dependency>
         <groupId>nl.jqno.equalsverifier</groupId>
         <artifactId>equalsverifier</artifactId>
-        <version>3.14.1</version>
+        <version>3.14.2</version>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
