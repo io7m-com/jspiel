@@ -18,7 +18,7 @@
 
   <name>com.io7m.jspiel</name>
   <description>RIFF IO</description>
-  <url>https://github.com/io7m/jspiel</url>
+  <url>https://www.github.com/io7m-com/jspiel</url>
 
   <inceptionYear>2019</inceptionYear>
 
@@ -45,9 +45,9 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/io7m/jspiel</url>
-    <connection>scm:git:https://github.com/io7m/jspiel</connection>
-    <developerConnection>scm:git:https://github.com/io7m/jspiel
+    <url>https://www.github.com/io7m-com/jspiel</url>
+    <connection>scm:git:https://www.github.com/io7m-com/jspiel</connection>
+    <developerConnection>scm:git:https://www.github.com/io7m-com/jspiel
     </developerConnection>
   </scm>
 
@@ -61,7 +61,7 @@
   </developers>
 
   <issueManagement>
-    <url>https://github.com/io7m/jspiel/issues</url>
+    <url>https://www.github.com/io7m-com/jspiel/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 
@@ -83,7 +83,7 @@
 
   <ciManagement>
     <system>GitHub Actions</system>
-    <url>https://github.com/jspiel/actions</url>
+    <url>https://www.github.com/io7m-com/jspiel/actions</url>
   </ciManagement>
 
   <prerequisites>
