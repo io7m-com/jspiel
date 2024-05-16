@@ -1,5 +1,9 @@
+RiffMainVersion(
+  appVersion,
+  appBuild) ::= <<
+
 /*
- * Copyright © 2019 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford \<code@io7m.com\> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,21 +18,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/**
- * RIFF I/O (Documentation)
- */
+package com.io7m.jspiel.cmdline;
 
-module com.io7m.jspiel.documentation
+public final class RiffMainVersion
 {
-  requires static org.immutables.value;
-  requires static com.io7m.immutables.style;
-  requires static org.osgi.annotation.bundle;
+  public static final String MAIN_VERSION = "<appVersion>";
+  public static final String MAIN_BUILD = "<appBuild>";
 
-  requires com.io7m.jspiel.api;
-  requires com.io7m.jspiel.vanilla;
+  private RiffMainVersion()
+  {
 
-  requires org.slf4j;
-  requires com.io7m.jaffirm.core;
-
-  exports com.io7m.jspiel.documentation;
+  }
 }
+
+>>

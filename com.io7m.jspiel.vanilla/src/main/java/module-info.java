@@ -20,9 +20,11 @@
 
 module com.io7m.jspiel.vanilla
 {
-  requires static org.osgi.service.component.annotations;
   requires static org.osgi.annotation.bundle;
-  requires transitive com.io7m.jspiel.api;
+  requires static org.osgi.annotation.versioning;
+  requires static org.osgi.service.component.annotations;
+
+  requires com.io7m.jspiel.api;
 
   requires org.slf4j;
   requires com.io7m.jaffirm.core;

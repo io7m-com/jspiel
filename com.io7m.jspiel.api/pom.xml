@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.jspiel</artifactId>
     <groupId>com.io7m.jspiel</groupId>
-    <version>0.0.4</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>com.io7m.jspiel.api</artifactId>
@@ -31,8 +31,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.io7m.immutables.style</groupId>
-      <artifactId>com.io7m.immutables.style</artifactId>
+      <groupId>com.io7m.immutables-style</groupId>
+      <artifactId>com.io7m.immutables-style</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -40,15 +40,11 @@
       <artifactId>org.osgi.annotation.bundle</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.versioning</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

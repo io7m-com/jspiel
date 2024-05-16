@@ -8,45 +8,52 @@
   <parent>
     <groupId>com.io7m.primogenitor</groupId>
     <artifactId>com.io7m.primogenitor.full</artifactId>
-    <version>7.0.0</version>
+    <version>8.2.0</version>
   </parent>
 
   <groupId>com.io7m.jspiel</groupId>
   <artifactId>com.io7m.jspiel</artifactId>
-  <version>0.0.4</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
 
   <name>com.io7m.jspiel</name>
   <description>RIFF IO</description>
-  <url>https://github.com/io7m/jspiel</url>
+  <url>https://www.github.com/io7m-com/jspiel</url>
 
   <inceptionYear>2019</inceptionYear>
 
   <modules>
     <module>com.io7m.jspiel.api</module>
     <module>com.io7m.jspiel.tests</module>
-    <module>com.io7m.jspiel.documentation</module>
     <module>com.io7m.jspiel.vanilla</module>
     <module>com.io7m.jspiel.cmdline</module>
   </modules>
 
   <properties>
-    <com.io7m.immutables.style.version>0.0.1</com.io7m.immutables.style.version>
-    <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
-    <org.immutables.value.version>2.8.8</org.immutables.value.version>
+    <!-- Configuration. -->
+    <io7m.api.previousVersion>1.0.0</io7m.api.previousVersion>
+    <io7m.java.targetJavaVersion>21</io7m.java.targetJavaVersion>
+
+    <!-- io7m dependencies. -->
+    <com.io7m.immutables.style.version>1.0.0</com.io7m.immutables.style.version>
+    <com.io7m.quarrel.version>1.6.1</com.io7m.quarrel.version>
+
+    <!-- Third-party dependencies. -->
+    <org.immutables.value.version>2.10.1</org.immutables.value.version>
+    <org.junit.version>5.10.2</org.junit.version>
   </properties>
 
   <licenses>
     <license>
-      <name>ISC License</name>
+      <name>ISC</name>
       <url>https://io7m.com/license/isc.txt</url>
     </license>
   </licenses>
 
   <scm>
-    <url>https://github.com/io7m/jspiel</url>
-    <connection>scm:git:https://github.com/io7m/jspiel</connection>
-    <developerConnection>scm:git:https://github.com/io7m/jspiel
+    <url>https://www.github.com/io7m-com/jspiel</url>
+    <connection>scm:git:https://www.github.com/io7m-com/jspiel</connection>
+    <developerConnection>scm:git:https://www.github.com/io7m-com/jspiel
     </developerConnection>
   </scm>
 
@@ -55,12 +62,12 @@
       <id>io7m</id>
       <name>io7m</name>
       <email>code@io7m.com</email>
-      <url>https://io7m.com</url>
+      <url>https://www.io7m.com</url>
     </developer>
   </developers>
 
   <issueManagement>
-    <url>https://github.com/io7m/jspiel/issues</url>
+    <url>https://www.github.com/io7m-com/jspiel/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 
@@ -72,17 +79,17 @@
     </site>
     <repository>
       <id>sonatype-nexus-staging</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 
   <ciManagement>
     <system>GitHub Actions</system>
-    <url>https://github.com/jspiel/actions</url>
+    <url>https://www.github.com/io7m-com/jspiel/actions</url>
   </ciManagement>
 
   <prerequisites>
@@ -91,14 +98,15 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Build, metadata, annotations. -->
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
         <version>${org.immutables.value.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.io7m.immutables.style</groupId>
-        <artifactId>com.io7m.immutables.style</artifactId>
+        <groupId>com.io7m.immutables-style</groupId>
+        <artifactId>com.io7m.immutables-style</artifactId>
         <version>${com.io7m.immutables.style.version}</version>
       </dependency>
       <dependency>
@@ -108,59 +116,71 @@
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.annotation.versioning</artifactId>
+        <version>1.1.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
         <artifactId>org.osgi.service.component.annotations</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
       </dependency>
 
+      <!-- CLI -->
       <dependency>
-        <groupId>com.io7m.primogenitor</groupId>
-        <artifactId>com.io7m.primogenitor.support</artifactId>
-        <version>7.0.0</version>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.core</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.ext.logback</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.ext.xstructural</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
+      </dependency>
+
+      <!-- Core. -->
       <dependency>
         <groupId>com.io7m.junreachable</groupId>
         <artifactId>com.io7m.junreachable.core</artifactId>
-        <version>4.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.beust</groupId>
-        <artifactId>jcommander</artifactId>
-        <version>1.82</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>2.0.0-alpha7</version>
+        <version>4.0.2</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jaffirm</groupId>
         <artifactId>com.io7m.jaffirm.core</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.13</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.3.0-alpha14</version>
+        <version>1.5.6</version>
       </dependency>
+
+      <!-- Test suite. -->
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.8.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>5.8.2</version>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${org.junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>nl.jqno.equalsverifier</groupId>
         <artifactId>equalsverifier</artifactId>
-        <version>3.10</version>
+        <version>3.16.1</version>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>4.4.0</version>
+        <version>5.12.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -168,6 +188,12 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>com.io7m.stmp</groupId>
+          <artifactId>string-template-maven-plugin</artifactId>
+          <version>2.0.0</version>
+        </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -179,8 +205,8 @@
                 <version>${org.immutables.value.version}</version>
               </dependency>
               <dependency>
-                <groupId>com.io7m.immutables.style</groupId>
-                <artifactId>com.io7m.immutables.style</artifactId>
+                <groupId>com.io7m.immutables-style</groupId>
+                <artifactId>com.io7m.immutables-style</artifactId>
                 <version>${com.io7m.immutables.style.version}</version>
               </dependency>
             </annotationProcessorPaths>

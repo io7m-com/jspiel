@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.jspiel</artifactId>
     <groupId>com.io7m.jspiel</groupId>
-    <version>0.0.4</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>com.io7m.jspiel.tests</artifactId>
@@ -20,7 +20,9 @@
   <url>https://www.io7m.com/software/jspiel</url>
 
   <properties>
+    <spotbugs.skip>true</spotbugs.skip>
     <mdep.analyze.skip>true</mdep.analyze.skip>
+    <checkstyle.skip>true</checkstyle.skip>
   </properties>
 
   <dependencies>

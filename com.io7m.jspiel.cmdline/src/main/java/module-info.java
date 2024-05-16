@@ -20,17 +20,20 @@
 
 module com.io7m.jspiel.cmdline
 {
-  requires ch.qos.logback.classic;
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
+
   requires com.io7m.jspiel.api;
+
+  requires ch.qos.logback.classic;
   requires com.io7m.junreachable.core;
-  requires jcommander;
+  requires com.io7m.quarrel.core;
+  requires com.io7m.quarrel.ext.logback;
   requires org.slf4j;
 
   uses com.io7m.jspiel.api.RiffFileBuilderProviderType;
   uses com.io7m.jspiel.api.RiffFileWriterProviderType;
   uses com.io7m.jspiel.api.RiffFileParserProviderType;
-
-  opens com.io7m.jspiel.cmdline to jcommander;
 
   exports com.io7m.jspiel.cmdline;
 }
