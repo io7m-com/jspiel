@@ -25,15 +25,19 @@
   <modules>
     <module>com.io7m.jspiel.api</module>
     <module>com.io7m.jspiel.tests</module>
-    <module>com.io7m.jspiel.documentation</module>
     <module>com.io7m.jspiel.vanilla</module>
     <module>com.io7m.jspiel.cmdline</module>
   </modules>
 
   <properties>
-    <com.io7m.immutables.style.version>0.0.1</com.io7m.immutables.style.version>
+    <!-- Configuration. -->
     <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
     <io7m.java.targetJavaVersion>21</io7m.java.targetJavaVersion>
+
+    <!-- io7m dependencies. -->
+    <com.io7m.immutables.style.version>1.0.0</com.io7m.immutables.style.version>
+
+    <!-- Third-party dependencies. -->
     <org.immutables.value.version>2.10.1</org.immutables.value.version>
   </properties>
 
@@ -56,7 +60,7 @@
       <id>io7m</id>
       <name>io7m</name>
       <email>code@io7m.com</email>
-      <url>https://io7m.com</url>
+      <url>https://www.io7m.com</url>
     </developer>
   </developers>
 
@@ -98,14 +102,19 @@
         <version>${org.immutables.value.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.io7m.immutables.style</groupId>
-        <artifactId>com.io7m.immutables.style</artifactId>
+        <groupId>com.io7m.immutables-style</groupId>
+        <artifactId>com.io7m.immutables-style</artifactId>
         <version>${com.io7m.immutables.style.version}</version>
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.annotation.bundle</artifactId>
         <version>2.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.annotation.versioning</artifactId>
+        <version>1.1.2</version>
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>
@@ -180,8 +189,8 @@
                 <version>${org.immutables.value.version}</version>
               </dependency>
               <dependency>
-                <groupId>com.io7m.immutables.style</groupId>
-                <artifactId>com.io7m.immutables.style</artifactId>
+                <groupId>com.io7m.immutables-style</groupId>
+                <artifactId>com.io7m.immutables-style</artifactId>
                 <version>${com.io7m.immutables.style.version}</version>
               </dependency>
             </annotationProcessorPaths>

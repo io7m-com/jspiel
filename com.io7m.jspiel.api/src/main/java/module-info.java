@@ -20,11 +20,12 @@
 
 module com.io7m.jspiel.api
 {
+  requires static org.osgi.annotation.bundle;
+  requires static org.osgi.annotation.versioning;
   requires static org.immutables.value;
   requires static com.io7m.immutables.style;
-  requires static org.osgi.annotation.bundle;
 
-  requires transitive com.io7m.jaffirm.core;
+  requires com.io7m.jaffirm.core;
 
   exports com.io7m.jspiel.api;
 }
