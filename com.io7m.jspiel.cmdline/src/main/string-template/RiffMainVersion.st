@@ -1,5 +1,9 @@
+RiffMainVersion(
+  appVersion,
+  appBuild) ::= <<
+
 /*
- * Copyright © 2019 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford \<code@io7m.com\> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,16 +18,17 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 package com.io7m.jspiel.cmdline;
 
-import java.util.concurrent.Callable;
-
-/**
- * The type of command-line subcommands.
- */
-
-public interface CommandType extends Callable<Void>
+public final class RiffMainVersion
 {
-  // No extra methods
+  public static final String MAIN_VERSION = "<appVersion>";
+  public static final String MAIN_BUILD = "<appBuild>";
+
+  private RiffMainVersion()
+  {
+
+  }
 }
+
+>>

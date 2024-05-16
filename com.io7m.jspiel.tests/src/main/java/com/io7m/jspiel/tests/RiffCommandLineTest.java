@@ -16,7 +16,7 @@
 
 package com.io7m.jspiel.tests;
 
-import com.io7m.jspiel.cmdline.Main;
+import com.io7m.jspiel.cmdline.RiffMain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +42,7 @@ public final class RiffCommandLineTest
   @Test
   public void testMainShowNoArgumentsFails()
   {
-    final var main = new Main(new String[] {
+    final var main = new RiffMain(new String[] {
       "show"
     });
 
@@ -53,7 +53,7 @@ public final class RiffCommandLineTest
   @Test
   public void testMainShowNonexistentFails()
   {
-    final var main = new Main(new String[] {
+    final var main = new RiffMain(new String[] {
       "show",
       "--file",
       "/nonexistent"
@@ -69,7 +69,7 @@ public final class RiffCommandLineTest
   {
     final var temp = createWAV();
 
-    final var main = new Main(new String[] {
+    final var main = new RiffMain(new String[] {
       "show",
       "--file",
       temp.toString()
@@ -85,7 +85,7 @@ public final class RiffCommandLineTest
   {
     final var temp = createWAV();
 
-    final var main = new Main(new String[] {
+    final var main = new RiffMain(new String[] {
       "show",
       "--verbose",
       "trace",
@@ -100,7 +100,7 @@ public final class RiffCommandLineTest
   @Test
   public void testMainNoArgumentsOK()
   {
-    final var main = new Main(new String[] {
+    final var main = new RiffMain(new String[] {
 
     });
 

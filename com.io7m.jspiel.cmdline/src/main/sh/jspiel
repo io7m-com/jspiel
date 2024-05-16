@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ -z "${JSPIEL_HOME}" ]
+then
+  echo "JSPIEL_HOME is unset" 1>&2
+  exit 1
+fi
+
+exec /usr/bin/env java \
+-p "${JSPIEL_HOME}/lib" \
+-m com.io7m.jspiel.cmdline/com.io7m.jspiel.cmdline.RiffMain \
+"$@"

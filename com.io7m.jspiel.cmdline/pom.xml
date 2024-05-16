@@ -36,20 +36,17 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.io7m.jaffirm</groupId>
-      <artifactId>com.io7m.jaffirm.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.io7m.junreachable</groupId>
-      <artifactId>com.io7m.junreachable.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.beust</groupId>
-      <artifactId>jcommander</artifactId>
-    </dependency>
-    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.io7m.quarrel</groupId>
+      <artifactId>com.io7m.quarrel.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.io7m.quarrel</groupId>
+      <artifactId>com.io7m.quarrel.ext.logback</artifactId>
     </dependency>
 
     <dependency>
@@ -57,49 +54,34 @@
       <artifactId>org.osgi.annotation.bundle</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.versioning</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <!-- Move the CycloneDX plugin execution before assembly construction. -->
+        <plugin>
+          <groupId>org.cyclonedx</groupId>
+          <artifactId>cyclonedx-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default</id>
+              <goals>
+                <goal>makeAggregateBom</goal>
+              </goals>
+              <phase>prepare-package</phase>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-
-      <!-- Produce command-line onejar -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <minimizeJar>false</minimizeJar>
-              <shadedClassifierName>main</shadedClassifierName>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <manifestEntries>
-                    <Main-Class>com.io7m.jspiel.cmdline.Main</Main-Class>
-                  </manifestEntries>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Make the generated runnable jar reproducible -->
-      <plugin>
-        <groupId>io.github.zlika</groupId>
-        <artifactId>reproducible-build-maven-plugin</artifactId>
-      </plugin>
-
       <!-- Ignore dependencies that bytecode analysis gets wrong. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -107,10 +89,102 @@
         <configuration>
           <failOnWarning>true</failOnWarning>
           <ignoredUnusedDeclaredDependencies>
-            <ignoredUnusedDeclaredDependency>com.io7m.jspiel:com.io7m.jspiel.vanilla:*</ignoredUnusedDeclaredDependency>
-            <ignoredUnusedDeclaredDependency>com.io7m.jaffirm:com.io7m.jaffirm.core:*</ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              com.io7m.jspiel:*
+            </ignoredUnusedDeclaredDependency>
+            <ignoredUnusedDeclaredDependency>
+              ch.qos.logback:logback-classic:*
+            </ignoredUnusedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.io7m.stmp</groupId>
+        <artifactId>string-template-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-version</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>renderTemplate</goal>
+            </goals>
+            <configuration>
+              <template>
+                <name>RiffMainVersion</name>
+                <inputFile>
+                  ${project.basedir}/src/main/string-template/RiffMainVersion.st
+                </inputFile>
+                <outputFile>
+                  ${project.build.directory}/generated-sources/string-template/com/io7m/jspiel/cmdline/RiffMainVersion.java
+                </outputFile>
+                <properties>
+                  <appVersion>${project.version}</appVersion>
+                  <appBuild>${buildNumber}</appBuild>
+                </properties>
+              </template>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-jooq-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/string-template</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>distribution</id>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <attach>true</attach>
+              <descriptors>
+                <descriptor>src/main/assembly/distribution.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>io.github.zlika</groupId>
+        <artifactId>reproducible-build-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>reproducible-zip</id>
+            <phase>package</phase>
+            <goals>
+              <goal>strip-jar</goal>
+            </goals>
+            <configuration>
+              <overwrite>true</overwrite>
+              <includes>
+                <include>.*\.zip</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

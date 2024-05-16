@@ -36,9 +36,11 @@
 
     <!-- io7m dependencies. -->
     <com.io7m.immutables.style.version>1.0.0</com.io7m.immutables.style.version>
+    <com.io7m.quarrel.version>1.6.1</com.io7m.quarrel.version>
 
     <!-- Third-party dependencies. -->
     <org.immutables.value.version>2.10.1</org.immutables.value.version>
+    <org.junit.version>5.10.2</org.junit.version>
   </properties>
 
   <licenses>
@@ -96,6 +98,7 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Build, metadata, annotations. -->
       <dependency>
         <groupId>org.immutables</groupId>
         <artifactId>value</artifactId>
@@ -122,25 +125,28 @@
         <version>1.5.1</version>
       </dependency>
 
+      <!-- CLI -->
       <dependency>
-        <groupId>com.io7m.primogenitor</groupId>
-        <artifactId>com.io7m.primogenitor.support</artifactId>
-        <version>8.2.0</version>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.core</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.ext.logback</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.io7m.quarrel</groupId>
+        <artifactId>com.io7m.quarrel.ext.xstructural</artifactId>
+        <version>${com.io7m.quarrel.version}</version>
+      </dependency>
+
+      <!-- Core. -->
       <dependency>
         <groupId>com.io7m.junreachable</groupId>
         <artifactId>com.io7m.junreachable.core</artifactId>
         <version>4.0.2</version>
-      </dependency>
-      <dependency>
-        <groupId>com.beust</groupId>
-        <artifactId>jcommander</artifactId>
-        <version>1.82</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>2.0.13</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.jaffirm</groupId>
@@ -148,19 +154,23 @@
         <version>4.0.1</version>
       </dependency>
       <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.13</version>
+      </dependency>
+      <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>1.5.6</version>
       </dependency>
+
+      <!-- Test suite. -->
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.10.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>5.10.2</version>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${org.junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>nl.jqno.equalsverifier</groupId>
@@ -178,6 +188,12 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>com.io7m.stmp</groupId>
+          <artifactId>string-template-maven-plugin</artifactId>
+          <version>2.0.0</version>
+        </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
