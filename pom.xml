@@ -36,7 +36,7 @@
 
     <!-- io7m dependencies. -->
     <com.io7m.immutables.style.version>1.0.0</com.io7m.immutables.style.version>
-    <com.io7m.quarrel.version>1.6.1</com.io7m.quarrel.version>
+    <com.io7m.quarrel.version>1.8.0</com.io7m.quarrel.version>
 
     <!-- Third-party dependencies. -->
     <org.immutables.value.version>2.10.1</org.immutables.value.version>
